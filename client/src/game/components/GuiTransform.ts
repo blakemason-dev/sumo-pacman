@@ -8,29 +8,14 @@ export const GuiTransform = defineComponent({
         x: Types.f32,
         y: Types.f32
     },
+    rotation: Types.f32,
     scale: {
         x: Types.f32,
         y: Types.f32
-    },
-    origin: {
-        x: Types.f32,
-        y: Types.f32
-    },
-    angle: Types.f32
+    }
 });
 
-export const DefaultGuiTransform = {
-    position: {
-        x: 0,
-        y: 0
-    },
-    scale: {
-        x: 1,
-        y: 1
-    },
-    origin: {
-        x: 0,
-        y: 0
-    },
-    angle: 0
-}
+export const GuiOrigin = defineComponent({
+    x: Types.f32,
+    y: Types.f32
+});

@@ -21,21 +21,19 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
         const enterRects = rectQueryEnter(world);
         enterRects.map(eid => {
             // create a phaser rect
+            console.log(GuiRectangle.color[eid])
             rectsById.set(eid, scene.add.rectangle(
                 GuiTransform.position.x[eid],
                 GuiTransform.position.y[eid],
                 GuiRectangle.width[eid],
                 GuiRectangle.height[eid],
-                0xffffff
+                GuiRectangle.color[eid],
+                GuiRectangle.alpha[eid]
             ));
             rectsById.get(eid)?.setOrigin(
-                GuiTransform.origin.x[eid],
-                GuiTransform.origin.y[eid]
+                GuiRectangle.origin.x[eid],
+                GuiRectangle.origin.y[eid]
             )
-            console.log('Entity: ', eid, ' has rectangle and transform');
-            if (hasComponent(world, GuiParent, eid)) {
-                console.log('Entity: ', eid, ' also has a parent');
-            }
         });
 
         return world;

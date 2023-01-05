@@ -16,7 +16,7 @@ export const createGuiTransformSystem = (scene: Phaser.Scene) => {
     return defineSystem((world: IWorld) => {
         const enterTransforms = transformQueryEnter(world);
         enterTransforms.map(eid => {
-            console.log('Entity: ', eid, 'has transform');
+            
         });
 
         return world;
