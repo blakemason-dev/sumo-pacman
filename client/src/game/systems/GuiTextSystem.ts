@@ -6,7 +6,6 @@ import {
     IWorld,
     hasComponent
 } from 'bitecs';
-import { GuiParent } from '../components/GuiParent';
 
 import { GuiText } from '../components/GuiText';
 import { GuiTransform } from '../components/GuiTransform';

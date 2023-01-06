@@ -10,11 +10,11 @@ import {
 } from 'bitecs';
 import { GuiTransform } from '../components/GuiTransform';
 import { GuiRectangle } from '../components/GuiRectangle';
-import { GuiParent } from '../components/GuiParent';
 import { createGuiTransformSystem } from '../systems/GuiTransformSystem';
 import { createGuiRectangleSystem } from '../systems/GuiRectangleSystem';
 import { GuiText } from '../components/GuiText';
 import { createGuiTextSystem } from '../systems/GuiTextSystem';
+import { GuiInput } from '../components/GuiInput';
 
 const textSlots = new Map<number, {text: string, style: {}}>();
 // const textStyleSlots = new Map<number, {}>();
@@ -58,8 +58,8 @@ export class FindMatch extends Phaser.Scene {
         // create an ECS Find Match button entity
         const buttonEid = addEntity(this.world);
         addComponent(this.world, GuiTransform, buttonEid);
-        GuiTransform.position.x[buttonEid] = 320;
-        GuiTransform.position.y[buttonEid] = 200;
+        GuiTransform.position.x[buttonEid] = this.scale.width/2;
+        GuiTransform.position.y[buttonEid] = this.scale.height/2;
         addComponent(this.world, GuiRectangle, buttonEid);
         GuiRectangle.width[buttonEid] = 200;
         GuiRectangle.height[buttonEid] = 100;
@@ -78,6 +78,9 @@ export class FindMatch extends Phaser.Scene {
         });
         GuiText.origin.x[buttonEid] = 0.5;
         GuiText.origin.y[buttonEid] = 0.5;
+        addComponent(this.world, GuiInput, buttonEid);
+        GuiInput.pointerDown[buttonEid] = 0;
+        GuiInput.pointerReleased[buttonEid] = 0;
 
         // create the gui transform system
         this.guiTransformSystem = createGuiTransformSystem(this);
