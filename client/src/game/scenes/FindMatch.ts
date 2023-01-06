@@ -35,6 +35,8 @@ export class FindMatch extends Phaser.Scene {
 
     preload() {
         console.log('preload()');
+
+        this.load.image('pacman', '/src/game/assets/pacman.png');
     }
 
     create() {
