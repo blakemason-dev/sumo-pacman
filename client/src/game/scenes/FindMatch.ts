@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GameButton } from '../shared/GameButton';
 
 import {
     createWorld,
@@ -8,22 +7,31 @@ import {
     System,
     IWorld
 } from 'bitecs';
+
 import { GuiTransform } from '../components/GuiTransform';
 import { GuiRectangle } from '../components/GuiRectangle';
-import { createGuiTransformSystem } from '../systems/GuiTransformSystem';
 import { createGuiRectangleSystem } from '../systems/GuiRectangleSystem';
 import { GuiText } from '../components/GuiText';
 import { createGuiTextSystem } from '../systems/GuiTextSystem';
 import { GuiInput } from '../components/GuiInput';
+import { PacmanGenerator } from '../components/PacmanGenerator';
+import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
+import { createImageSystem } from '../systems/ImageSystem';
 
-const textSlots = new Map<number, {text: string, style: {}}>();
-// const textStyleSlots = new Map<number, {}>();
+import * as AssetLibrary from '../assets/index';
+import { GhostGenerator } from '../components/GhostGenerator';
+import { createGuiButtonPrefabEntity } from '../prefabs/pfGuiButton';
+import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
+import { GuiEvent } from '../components/GuiEvent';
 
 export class FindMatch extends Phaser.Scene {
     private world!: IWorld;
     private guiTransformSystem!: System;
     private guiRectangleSystem!: System;
     private guiTextSystem!: System;
+    private pacmanGeneratorSystem!: System;
+    private ghostGeneratorSystem!: System;
+    private imageSystem!: System;
 
     constructor() {
         super("find-match");
@@ -36,7 +44,18 @@ export class FindMatch extends Phaser.Scene {
     preload() {
         console.log('preload()');
 
-        this.load.image('pacman', '/src/game/assets/pacman.png');
+        // load all assets in library
+        AssetLibrary.library.map(asset => {
+            switch (asset.type) {
+                case 'IMAGE': {
+                    this.load.image(asset.key, asset.src);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        })
     }
 
     create() {
@@ -45,57 +64,45 @@ export class FindMatch extends Phaser.Scene {
         const redRing = this.add.circle(320,180, 160, 0x222222, 1);
         redRing.setStrokeStyle(3, 0xff0000);
 
-        // const findMatchButton = new GameButton(
-        //     this,
-        //     320, 180,
-        //     180, 40, "FIND MATCH",
-        //     () => {
-        //         console.log("Clicked");
-        //     }
-        // )
-
         // create ECS world
         this.world = createWorld();
 
-        // create an ECS Find Match button entity
-        const buttonEid = addEntity(this.world);
-        addComponent(this.world, GuiTransform, buttonEid);
-        GuiTransform.position.x[buttonEid] = this.scale.width/2;
-        GuiTransform.position.y[buttonEid] = this.scale.height/2;
-        addComponent(this.world, GuiRectangle, buttonEid);
-        GuiRectangle.width[buttonEid] = 200;
-        GuiRectangle.height[buttonEid] = 100;
-        GuiRectangle.color[buttonEid] = 0xff0000;
-        GuiRectangle.alpha[buttonEid] = 1.0;
-        GuiRectangle.origin.x[buttonEid] = 0.5;
-        GuiRectangle.origin.y[buttonEid] = 0.5;
-        addComponent(this.world, GuiText, buttonEid);
-        textSlots.set(buttonEid, {
-            text: "FIND MATCH",
-            style: {
-                fontFamily: "mono",
-                fontSize: "16px",
-                color: "#0000ff"
-            }
-        });
-        GuiText.origin.x[buttonEid] = 0.5;
-        GuiText.origin.y[buttonEid] = 0.5;
-        addComponent(this.world, GuiInput, buttonEid);
-        GuiInput.pointerDown[buttonEid] = 0;
-        GuiInput.pointerReleased[buttonEid] = 0;
+        // create pacman generator button entity
+        const eidPacmanButton = createGuiButtonPrefabEntity(this.world, "Generate Pacman");
+        GuiTransform.position.x[eidPacmanButton] = this.scale.width*0.15;
+        GuiTransform.position.y[eidPacmanButton] = this.scale.height*0.75;
+        GuiEvent.type[eidPacmanButton] = 0;
 
-        // create the gui transform system
-        this.guiTransformSystem = createGuiTransformSystem(this);
+        // create ghost generator button entity
+        const eidGhostButton = createGuiButtonPrefabEntity(this.world, "Generate Ghost");
+        GuiTransform.position.x[eidGhostButton] = this.scale.width*0.85;
+        GuiTransform.position.y[eidGhostButton] = this.scale.height*0.75;
+        GuiEvent.type[eidGhostButton] = 1;
+        
+        // make a pacman generator entity
+        const eidPacmanGenerator = addEntity(this.world);
+        addComponent(this.world, PacmanGenerator, eidPacmanGenerator);
+        
+        // make a ghost generator entity
+        const eidGhostGenerator = addEntity(this.world);
+        addComponent(this.world, GhostGenerator, eidGhostGenerator);
+        
+        // create systems
+        this.pacmanGeneratorSystem = createPacmanGeneratorSystem(this);
+        this.ghostGeneratorSystem = createGhostGeneratorSystem(this);
         this.guiRectangleSystem = createGuiRectangleSystem(this);
-        this.guiTextSystem = createGuiTextSystem(this, textSlots);
+        this.guiTextSystem = createGuiTextSystem(this);
+        this.imageSystem = createImageSystem(this);
     }
 
     update(t: number, dt: number) {
         if (!this.world) return;
 
         // run systems
-        this.guiTransformSystem(this.world);
+        this.pacmanGeneratorSystem(this.world);
+        this.ghostGeneratorSystem(this.world);
         this.guiRectangleSystem(this.world);
         this.guiTextSystem(this.world);
+        this.imageSystem(this.world);
     }
 }

@@ -6,6 +6,9 @@ import {
     IWorld,
     hasComponent
 } from 'bitecs';
+import { GuiEvent } from '../components/GuiEvent';
+
+
 import { GuiInput } from '../components/GuiInput';
 
 import { GuiRectangle } from '../components/GuiRectangle';
@@ -17,8 +20,9 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
     const rectQueryEnter = enterQuery(rectQuery);
     const rectQueryExit = exitQuery(rectQuery);
 
-    const rectInputQuery = defineQuery([GuiRectangle, GuiInput]);
-    const rectInputQueryEnter = enterQuery(rectInputQuery);
+    // handle rectangle and event pointer up cases
+    const rectEventQuery = defineQuery([GuiRectangle, GuiEvent]);
+    const rectEventQueryEnter = enterQuery(rectEventQuery);
 
     return defineSystem((world: IWorld) => {
         // handle rectangle and transform cases
@@ -39,20 +43,25 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
             );
         });
 
-        // handle rectangle and input cases
-        const enterRectInputs = rectInputQueryEnter(world);
-        enterRectInputs.map(eid => {
+        
+        const eventEntities = rectEventQueryEnter(world);
+        eventEntities.map(eid => {
+            console.log('check');
             rectsById.get(eid)?.setInteractive();
-            rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
-                GuiInput.pointerReleased[eid] = 1;
-            });
-        });
-
-        const rectInputs = rectInputQuery(world);
-        rectInputs.map(eid => {
-            if (GuiInput.pointerReleased[eid] === 1) {
-                console.log('button clicked');
-                GuiInput.pointerReleased[eid] = 0;
+            switch (GuiEvent.type[eid]) {
+                case 0: {
+                    rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
+                        scene.events.emit('create-pacman', 1);
+                    });
+                    break;
+                }
+                case 1: {
+                    rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
+                        scene.events.emit('create-ghost', 1);
+                    });
+                    break;
+                }
+                default: break;
             }
         });
 
