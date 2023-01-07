@@ -5,12 +5,12 @@ import {
     exitQuery,
     IWorld,
 } from 'bitecs';
-import { GuiEvent, GuiEventEnum } from '../components/GuiEvent';
+import { GuiEvent, GuiEventEnum } from '../../components/gui/GuiEvent';
 
-import { GuiText } from '../components/GuiText';
-import { GuiTransform } from '../components/GuiTransform';
+import { GuiText } from '../../components/gui/GuiText';
+import { GuiTransform } from '../../components/gui/GuiTransform';
 
-import * as TextLibrary from '../libraries/TextLibrary';
+import * as TextLibrary from '../../libraries/TextLibrary';
 
 export const createGuiTextSystem = (scene: Phaser.Scene) => {
     const textsById = new Map<number, Phaser.GameObjects.Text>();

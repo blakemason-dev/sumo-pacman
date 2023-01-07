@@ -7,9 +7,9 @@ import {
     hasComponent
 } from 'bitecs';
 
-import { GuiEvent, GuiEventEnum } from '../components/GuiEvent';
-import { GuiRectangle } from '../components/GuiRectangle';
-import { GuiTransform } from '../components/GuiTransform';
+import { GuiEvent, GuiEventEnum } from '../../components/gui/GuiEvent';
+import { GuiRectangle } from '../../components/gui/GuiRectangle';
+import { GuiTransform } from '../../components/gui/GuiTransform';
 
 export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
     const rectsById = new Map<number, Phaser.GameObjects.Rectangle>();

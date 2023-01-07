@@ -4,11 +4,11 @@ import {
     IWorld
 } from 'bitecs';
 
-import { GuiTransform } from '../components/GuiTransform';
-import { GuiText } from '../components/GuiText';
-import { GuiEvent } from '../components/GuiEvent';
+import { GuiTransform } from '../../components/gui/GuiTransform';
+import { GuiText } from '../../components/gui/GuiText';
+import { GuiEvent } from '../../components/gui/GuiEvent';
 
-import * as TextLibrary from '../libraries/TextLibrary';
+import * as TextLibrary from '../../libraries/TextLibrary';
 
 export const createGuiCounterPrefabEntity = (world: IWorld, text: string) => {
     const eid = addEntity(world);
@@ -22,5 +22,5 @@ export const createGuiCounterPrefabEntity = (world: IWorld, text: string) => {
 
     addComponent(world, GuiEvent, eid);
 
-    return eid;
+    return eid; 
 }

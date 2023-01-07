@@ -8,20 +8,20 @@ import {
     IWorld
 } from 'bitecs';
 
-import { GuiTransform } from '../components/GuiTransform';
-import { createGuiRectangleSystem } from '../systems/GuiRectangleSystem';
-import { createGuiTextSystem } from '../systems/GuiTextSystem';
+import { GuiTransform } from '../components/gui/GuiTransform';
+import { createGuiRectangleSystem } from '../systems/gui/GuiRectangleSystem';
+import { createGuiTextSystem } from '../systems/gui/GuiTextSystem';
 import { PacmanGenerator } from '../components/PacmanGenerator';
 import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
 import { createImageSystem } from '../systems/ImageSystem';
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
 import { GhostGenerator } from '../components/GhostGenerator';
-import { createGuiButtonPrefabEntity } from '../prefabs/pfGuiButton';
+import { createGuiButtonPrefabEntity } from '../prefabs/gui/pfGuiButton';
 import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
-import { GuiEvent, GuiEventEnum } from '../components/GuiEvent';
-import { GuiText } from '../components/GuiText';
-import { createGuiCounterPrefabEntity } from '../prefabs/pfGuiCounter';
+import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
+import { GuiText } from '../components/gui/GuiText';
+import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
 
 export class FindMatch extends Phaser.Scene {
     private world!: IWorld;

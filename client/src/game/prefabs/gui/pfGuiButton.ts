@@ -4,12 +4,12 @@ import {
     IWorld
 } from 'bitecs';
 
-import { GuiRectangle } from '../components/GuiRectangle';
-import { GuiTransform } from '../components/GuiTransform';
-import { GuiText } from '../components/GuiText';
-import { GuiEvent } from '../components/GuiEvent';
+import { GuiRectangle } from '../../components/gui/GuiRectangle';
+import { GuiTransform } from '../../components/gui/GuiTransform';
+import { GuiText } from '../../components/gui/GuiText';
+import { GuiEvent } from '../../components/gui/GuiEvent';
 
-import * as TextLibrary from '../libraries/TextLibrary';
+import * as TextLibrary from '../../libraries/TextLibrary';
 
 export const createGuiButtonPrefabEntity = (world: IWorld, textLibraryKey: string) => {
     const eid = addEntity(world);
