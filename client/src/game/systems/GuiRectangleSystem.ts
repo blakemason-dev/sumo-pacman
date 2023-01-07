@@ -6,26 +6,26 @@ import {
     IWorld,
     hasComponent
 } from 'bitecs';
-import { GuiEvent } from '../components/GuiEvent';
 
-
-import { GuiInput } from '../components/GuiInput';
-
+import { GuiEvent, GuiEventEnum } from '../components/GuiEvent';
 import { GuiRectangle } from '../components/GuiRectangle';
 import { GuiTransform } from '../components/GuiTransform';
 
 export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
     const rectsById = new Map<number, Phaser.GameObjects.Rectangle>();
+
+    // queries to position and initialise rectangles
     const rectQuery = defineQuery([GuiRectangle, GuiTransform]);
     const rectQueryEnter = enterQuery(rectQuery);
     const rectQueryExit = exitQuery(rectQuery);
 
-    // handle rectangle and event pointer up cases
+    // queries for events attached to rectangles
     const rectEventQuery = defineQuery([GuiRectangle, GuiEvent]);
     const rectEventQueryEnter = enterQuery(rectEventQuery);
 
+    // define the sytem
     return defineSystem((world: IWorld) => {
-        // handle rectangle and transform cases
+        // rectangle initialisation with a transform
         const enterRects = rectQueryEnter(world);
         enterRects.map(eid => {
             // create a phaser rect
@@ -43,19 +43,18 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene) => {
             );
         });
 
-        
-        const eventEntities = rectEventQueryEnter(world);
-        eventEntities.map(eid => {
-            console.log('check');
+        // initialisation of rectangles with sibling event compoments
+        const enterEventRects = rectEventQueryEnter(world);
+        enterEventRects.map(eid => {
             rectsById.get(eid)?.setInteractive();
             switch (GuiEvent.type[eid]) {
-                case 0: {
+                case GuiEventEnum.CREATE_PACMAN: {
                     rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
                         scene.events.emit('create-pacman', 1);
                     });
                     break;
                 }
-                case 1: {
+                case GuiEventEnum.CREATE_GHOST: {
                     rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
                         scene.events.emit('create-ghost', 1);
                     });

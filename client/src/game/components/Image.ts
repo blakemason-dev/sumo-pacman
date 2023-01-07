@@ -4,7 +4,7 @@ import {
 } from 'bitecs';
 
 export const Image = defineComponent({
-    texture: Types.ui16,
+    textureIndex: Types.ui16,
     width: Types.f32,
     height: Types.f32,
     origin: {

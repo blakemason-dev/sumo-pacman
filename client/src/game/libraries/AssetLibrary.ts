@@ -1,3 +1,5 @@
+// ussage:
+//    import * as AssetLibrary from '../etc./etc.'
 
 const library = [
     {

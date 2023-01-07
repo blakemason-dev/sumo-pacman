@@ -9,7 +9,7 @@ import {
 import { Image } from '../components/Image';
 import { Transform } from '../components/Transform';
 
-import * as AssetLibrary from '../assets/index';
+import * as AssetLibrary from '../libraries/AssetLibrary';
 
 export const createImageSystem = (scene: Phaser.Scene) => {
     const imagesById = new Map<number, Phaser.GameObjects.Image>();
@@ -23,7 +23,7 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             imagesById.set(eid, scene.add.sprite(
                 Transform.position.x[eid],
                 Transform.position.y[eid],
-                AssetLibrary.getKey(Image.texture[eid])
+                AssetLibrary.getKey(Image.textureIndex[eid])
             ));
             imagesById.get(eid)?.setDisplaySize(
                 Image.width[eid],

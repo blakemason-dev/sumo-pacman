@@ -9,20 +9,19 @@ import {
 } from 'bitecs';
 
 import { GuiTransform } from '../components/GuiTransform';
-import { GuiRectangle } from '../components/GuiRectangle';
 import { createGuiRectangleSystem } from '../systems/GuiRectangleSystem';
-import { GuiText } from '../components/GuiText';
 import { createGuiTextSystem } from '../systems/GuiTextSystem';
-import { GuiInput } from '../components/GuiInput';
 import { PacmanGenerator } from '../components/PacmanGenerator';
 import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
 import { createImageSystem } from '../systems/ImageSystem';
 
-import * as AssetLibrary from '../assets/index';
+import * as AssetLibrary from '../libraries/AssetLibrary';
 import { GhostGenerator } from '../components/GhostGenerator';
 import { createGuiButtonPrefabEntity } from '../prefabs/pfGuiButton';
 import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
-import { GuiEvent } from '../components/GuiEvent';
+import { GuiEvent, GuiEventEnum } from '../components/GuiEvent';
+import { GuiText } from '../components/GuiText';
+import { createGuiCounterPrefabEntity } from '../prefabs/pfGuiCounter';
 
 export class FindMatch extends Phaser.Scene {
     private world!: IWorld;
@@ -68,16 +67,22 @@ export class FindMatch extends Phaser.Scene {
         this.world = createWorld();
 
         // create pacman generator button entity
-        const eidPacmanButton = createGuiButtonPrefabEntity(this.world, "Generate Pacman");
+        const eidPacmanButton = createGuiButtonPrefabEntity(this.world, "generate-pacman");
         GuiTransform.position.x[eidPacmanButton] = this.scale.width*0.15;
-        GuiTransform.position.y[eidPacmanButton] = this.scale.height*0.75;
-        GuiEvent.type[eidPacmanButton] = 0;
+        GuiTransform.position.y[eidPacmanButton] = this.scale.height*0.85;
+        GuiEvent.type[eidPacmanButton] = GuiEventEnum.CREATE_PACMAN;
 
         // create ghost generator button entity
-        const eidGhostButton = createGuiButtonPrefabEntity(this.world, "Generate Ghost");
+        const eidGhostButton = createGuiButtonPrefabEntity(this.world, "generate-ghost");
         GuiTransform.position.x[eidGhostButton] = this.scale.width*0.85;
-        GuiTransform.position.y[eidGhostButton] = this.scale.height*0.75;
-        GuiEvent.type[eidGhostButton] = 1;
+        GuiTransform.position.y[eidGhostButton] = this.scale.height*0.85;
+        GuiEvent.type[eidGhostButton] = GuiEventEnum.CREATE_GHOST;
+
+        // create counter text entity
+        const eidCounter = createGuiCounterPrefabEntity(this.world, "Counter: ");
+        GuiTransform.position.x[eidCounter] = this.scale.width*0.85;
+        GuiTransform.position.y[eidCounter] = this.scale.height*0.1;
+        GuiEvent.type[eidCounter] = GuiEventEnum.UPDATE_COUNTER;
         
         // make a pacman generator entity
         const eidPacmanGenerator = addEntity(this.world);

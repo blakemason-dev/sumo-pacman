@@ -4,7 +4,7 @@ import {
     IWorld
 } from 'bitecs';
 
-import * as AssetLibrary from '../assets/index';
+import * as AssetLibrary from '../libraries/AssetLibrary';
 
 import { Image } from '../components/Image';
 import { Transform } from '../components/Transform';
@@ -14,9 +14,9 @@ export const createGhostPrefabEntity = (world: IWorld, color: number) => {
 
     addComponent(world, Image, peid);
     switch (color) {
-        case 0: Image.texture[peid] = AssetLibrary.getIndex('red-ghost'); break;
-        case 1: Image.texture[peid] = AssetLibrary.getIndex('yellow-ghost'); break;
-        case 2: Image.texture[peid] = AssetLibrary.getIndex('pink-ghost'); break;
+        case 0: Image.textureIndex[peid] = AssetLibrary.getIndex('red-ghost'); break;
+        case 1: Image.textureIndex[peid] = AssetLibrary.getIndex('yellow-ghost'); break;
+        case 2: Image.textureIndex[peid] = AssetLibrary.getIndex('pink-ghost'); break;
         default: break;
     }
     Image.width[peid] = 32;
