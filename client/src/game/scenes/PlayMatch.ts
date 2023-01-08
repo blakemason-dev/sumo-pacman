@@ -25,16 +25,21 @@ import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
 import { GuiText } from '../components/gui/GuiText';
 import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
 import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
+import { createPfPlayerPacman } from '../prefabs/pfPlayerPacman';
+import { createClientInputSystem } from '../systems/ClientInputSystem';
+import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
+import { Transform } from '../components/Transform';
 
 const eventEmitter = new EventEmitter();
 
-export class FindMatch extends Phaser.Scene {
+export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
-    private guiRectangleSystem!: System;
-    private guiTextSystem!: System;
+    // private imageSystem!: System;
+    // private guiTextSystem!: System;
+    private systems: System[] = [];
 
     constructor() {
-        super("find-match");
+        super("play-match");
     }
 
     init() {
@@ -45,7 +50,7 @@ export class FindMatch extends Phaser.Scene {
         console.log('preload()');
 
         // load all assets in library
-        AssetLibrary.loadAll(this);
+        // AssetLibrary.loadAll(this);
     }
 
     create() {
@@ -53,7 +58,7 @@ export class FindMatch extends Phaser.Scene {
         this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
-            "Scene: FindMatch",
+            "Scene: PlayMatch",
             {
                 fontFamily: 'arial',
                 fontSize: '24px',
@@ -61,29 +66,29 @@ export class FindMatch extends Phaser.Scene {
             }
         ).setOrigin(0,0);
 
+        const redRing = this.add.circle(320,180, 160, 0x222222, 1);
+        redRing.setStrokeStyle(3, 0xff0000);
+
         // create ECS world
         this.world = createWorld();
 
         // create find match button
-        const eidFindMatchButton = createPfGuiFindMatchButton(this.world);
-        GuiTransform.position.x[eidFindMatchButton] = this.scale.width*0.5;
-        GuiTransform.position.y[eidFindMatchButton] = this.scale.height*0.5;
-        eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
-            if (eid === eidFindMatchButton) {
-                this.scene.start('search-match');
-            }
-        });
+        const eidPlayer = createPfPlayerPacman(this.world);
+        Transform.position.x[eidPlayer] = this.scale.width*0.5;
+        Transform.position.y[eidPlayer] = this.scale.height*0.5;
         
         // create systems
-        this.guiRectangleSystem = createGuiRectangleSystem(this, eventEmitter);
-        this.guiTextSystem = createGuiTextSystem(this);
+        this.systems.push(createClientInputSystem(this));
+        this.systems.push(createImageSystem(this));
+        this.systems.push(createPlayerMovementSystem(this));
     }
 
     update(t: number, dt: number) {
         if (!this.world) return;
 
         // run systems
-        this.guiRectangleSystem(this.world);
-        this.guiTextSystem(this.world);
+        this.systems.map(system => {
+            system(this.world);
+        })
     }
 }

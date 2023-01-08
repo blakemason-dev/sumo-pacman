@@ -6,7 +6,8 @@ import {
 export enum GuiEventEnum {
     CREATE_PACMAN,
     CREATE_GHOST,
-    UPDATE_COUNTER
+    UPDATE_COUNTER,
+    CLICKED_FIND_MATCH,
 }
 
 export const GuiEvent = defineComponent({

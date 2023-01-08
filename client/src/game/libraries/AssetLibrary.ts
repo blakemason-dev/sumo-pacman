@@ -37,4 +37,18 @@ const getKey = (index: number) => {
     return key;
 }
 
-export { library, getIndex, getKey }
+const loadAll = (scene: Phaser.Scene) => {
+    library.map(asset => {
+        switch (asset.type) {
+            case 'IMAGE': {
+                scene.load.image(asset.key, asset.src);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    })
+}
+
+export { library, getIndex, getKey, loadAll }

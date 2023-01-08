@@ -3,7 +3,8 @@ import {
     defineQuery,
     enterQuery,
     exitQuery,
-    IWorld
+    IWorld,
+    Changed
 } from 'bitecs';
 
 import { Image } from '../components/Image';
@@ -16,6 +17,8 @@ export const createImageSystem = (scene: Phaser.Scene) => {
     const imageQuery = defineQuery([Transform, Image]);
     const imageQueryEnter = enterQuery(imageQuery);
     const imageQueryExit = exitQuery(imageQuery);
+
+    const imageMovedQuery = defineQuery([Changed(Transform), Image]);
 
     return defineSystem((world: IWorld) => {
         const enterSprites = imageQueryEnter(world);
@@ -33,6 +36,14 @@ export const createImageSystem = (scene: Phaser.Scene) => {
                 Image.origin.x[eid],
                 Image.origin.y[eid]
             )
+        });
+
+        const imagesMoved = imageMovedQuery(world);
+        imagesMoved.map(eid => {
+            imagesById.get(eid)?.setPosition(
+                Transform.position.x[eid],
+                Transform.position.y[eid]
+            );
         });
 
         return world;

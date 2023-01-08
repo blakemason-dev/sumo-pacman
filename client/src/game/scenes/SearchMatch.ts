@@ -28,13 +28,16 @@ import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton'
 
 const eventEmitter = new EventEmitter();
 
-export class FindMatch extends Phaser.Scene {
+export class SearchMatch extends Phaser.Scene {
     private world!: IWorld;
     private guiRectangleSystem!: System;
     private guiTextSystem!: System;
 
+    private counter = 1000;
+    private counterText!: Phaser.GameObjects.Text;
+
     constructor() {
-        super("find-match");
+        super("search-match");
     }
 
     init() {
@@ -45,7 +48,7 @@ export class FindMatch extends Phaser.Scene {
         console.log('preload()');
 
         // load all assets in library
-        AssetLibrary.loadAll(this);
+        // AssetLibrary.loadAll(this);
     }
 
     create() {
@@ -53,7 +56,7 @@ export class FindMatch extends Phaser.Scene {
         this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
-            "Scene: FindMatch",
+            "Scene: SearchMatch",
             {
                 fontFamily: 'arial',
                 fontSize: '24px',
@@ -61,29 +64,25 @@ export class FindMatch extends Phaser.Scene {
             }
         ).setOrigin(0,0);
 
-        // create ECS world
-        this.world = createWorld();
-
-        // create find match button
-        const eidFindMatchButton = createPfGuiFindMatchButton(this.world);
-        GuiTransform.position.x[eidFindMatchButton] = this.scale.width*0.5;
-        GuiTransform.position.y[eidFindMatchButton] = this.scale.height*0.5;
-        eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
-            if (eid === eidFindMatchButton) {
-                this.scene.start('search-match');
+        // create searching text
+        this.counterText = this.add.text(
+            this.scale.width*0.5,
+            this.scale.height*0.5,
+            "Searching: 3.0",
+            {
+                fontFamily: 'arial',
+                fontSize: '24px',
+                color: '#ffffff'
             }
-        });
-        
-        // create systems
-        this.guiRectangleSystem = createGuiRectangleSystem(this, eventEmitter);
-        this.guiTextSystem = createGuiTextSystem(this);
+        ).setOrigin(0.5,0.5);
     }
 
     update(t: number, dt: number) {
-        if (!this.world) return;
+        this.counter -= dt;
+        this.counterText.text = "Searching: " + (this.counter*0.001).toFixed(1);
 
-        // run systems
-        this.guiRectangleSystem(this.world);
-        this.guiTextSystem(this.world);
+        if (this.counter < 0) {
+            this.scene.start('play-match');
+        }
     }
 }

@@ -30,6 +30,16 @@ const library = [
         },
         type: 'TEXT'
     },
+    {
+        key: 'find-match',
+        text: 'FIND MATCH',
+        style: {
+            fontFamily: "arial",
+            fontSize: "20px",
+            color: "#000000"
+        },
+        type: 'TEXT'
+    },
 ];
 
 const getIndex = (key: string) => {
