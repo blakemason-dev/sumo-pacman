@@ -10,6 +10,7 @@ import { Image } from '../components/Image';
 import { Transform } from '../components/Transform';
 import { ClientInput } from '../components/ClientInput';
 import { PlayerMovement } from '../components/PlayerMovement';
+import { RingOutCheck } from '../components/RingOutCheck';
 
 export const createPfPlayerPacman = (world: IWorld) => {
     const peid = addEntity(world);
@@ -18,6 +19,8 @@ export const createPfPlayerPacman = (world: IWorld) => {
     Image.textureIndex[peid] = AssetLibrary.getIndex('pacman');
     Image.width[peid] = 32;
     Image.height[peid] = 32;
+    Image.origin.x[peid] = 0.5;
+    Image.origin.y[peid] = 0.5;
 
     addComponent(world, Transform, peid);
     Transform.position.x[peid] = 0;
@@ -26,7 +29,9 @@ export const createPfPlayerPacman = (world: IWorld) => {
     addComponent(world, ClientInput, peid);
 
     addComponent(world, PlayerMovement, peid);
-    PlayerMovement.speed[peid] = 2;
+    PlayerMovement.speed[peid] = 3;
+
+    addComponent(world, RingOutCheck, peid);
 
     return peid;
 }

@@ -29,6 +29,7 @@ import { createPfPlayerPacman } from '../prefabs/pfPlayerPacman';
 import { createClientInputSystem } from '../systems/ClientInputSystem';
 import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
 import { Transform } from '../components/Transform';
+import { createRingOutCheckSystem } from '../systems/RingOutCheckSystem';
 
 const eventEmitter = new EventEmitter();
 
@@ -61,7 +62,7 @@ export class PlayMatch extends Phaser.Scene {
             "Scene: PlayMatch",
             {
                 fontFamily: 'arial',
-                fontSize: '24px',
+                fontSize: '20px',
                 color: '#ffffff'
             }
         ).setOrigin(0,0);
@@ -81,6 +82,14 @@ export class PlayMatch extends Phaser.Scene {
         this.systems.push(createClientInputSystem(this));
         this.systems.push(createImageSystem(this));
         this.systems.push(createPlayerMovementSystem(this));
+        this.systems.push(createRingOutCheckSystem(this, eventEmitter));
+
+        // listen for playe ring out event
+        eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
+            if (eid === eidPlayer) {
+                this.scene.start('find-match');
+            }
+        })
     }
 
     update(t: number, dt: number) {

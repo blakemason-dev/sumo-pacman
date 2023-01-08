@@ -47,7 +47,7 @@ export const createGuiTextSystem = (scene: Phaser.Scene) => {
             switch(GuiEvent.type[eid]) {
                 case GuiEventEnum.UPDATE_COUNTER: {
                     scene.events.on('create-pacman', () => {
-                        textsById.get(eid)?.setText(`Counter: ${++counter}`);
+                        textsById.get(eid)?.setText(`Counter: ${++counter}`); 
                     });
                     scene.events.on('create-ghost', () => {
                         textsById.get(eid)?.setText(`Counter: ${++counter}`);

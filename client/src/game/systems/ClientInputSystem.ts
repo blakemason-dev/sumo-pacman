@@ -33,7 +33,6 @@ export const createClientInputSystem = (scene: Phaser.Scene) => {
 
             if (scene.input.keyboard.checkDown(W_KEY)) {
                 ClientInput.w_key_down[eid] = 1;
-                console.log('test');
             }
             if (scene.input.keyboard.checkDown(A_KEY)) {
                 ClientInput.a_key_down[eid] = 1;

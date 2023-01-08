@@ -44,6 +44,7 @@ export const createImageSystem = (scene: Phaser.Scene) => {
                 Transform.position.x[eid],
                 Transform.position.y[eid]
             );
+            imagesById.get(eid)?.setRotation(Transform.rotation[eid]);
         });
 
         return world;

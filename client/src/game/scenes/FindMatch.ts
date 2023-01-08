@@ -56,7 +56,7 @@ export class FindMatch extends Phaser.Scene {
             "Scene: FindMatch",
             {
                 fontFamily: 'arial',
-                fontSize: '24px',
+                fontSize: '20px',
                 color: '#ffffff'
             }
         ).setOrigin(0,0);
