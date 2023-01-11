@@ -5,7 +5,9 @@ import {
     addEntity,
     addComponent,
     System,
-    IWorld
+    IWorld,
+    deleteWorld,
+    resetWorld
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
@@ -35,10 +37,12 @@ export class FindMatch extends Phaser.Scene {
 
     constructor() {
         super("find-match");
+        console.log('constructor()');
     }
 
     init() {
         console.log('init()');
+        console.log(this.world);
     }
 
     preload() {
@@ -70,6 +74,7 @@ export class FindMatch extends Phaser.Scene {
         GuiTransform.position.y[eidFindMatchButton] = this.scale.height*0.5;
         eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
             if (eid === eidFindMatchButton) {
+                resetWorld(this.world);
                 this.scene.start('search-match');
             }
         });

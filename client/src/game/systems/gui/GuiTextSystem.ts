@@ -18,14 +18,11 @@ export const createGuiTextSystem = (scene: Phaser.Scene) => {
     const textQueryEnter = enterQuery(textQuery);
     const textQueryExit = exitQuery(textQuery);
 
-    const eventTextQuery = defineQuery([GuiText, GuiEvent]);
-    const eventTextQueryEnter = enterQuery(eventTextQuery);
-
     let counter = 0;
 
     return defineSystem((world: IWorld) => {
-        const enterRects = textQueryEnter(world);
-        enterRects.map(eid => {
+        const enterTexts = textQueryEnter(world);
+        enterTexts.map(eid => {
             // create phaser text
             const text = TextLibrary.library[GuiText.textIndex[eid]].text;
             const style = TextLibrary.library[GuiText.textIndex[eid]].style;
@@ -41,21 +38,10 @@ export const createGuiTextSystem = (scene: Phaser.Scene) => {
             )
         });
 
-        // handle new event text
-        const eventTexts = eventTextQueryEnter(world);
-        eventTexts.map(eid => {
-            switch(GuiEvent.type[eid]) {
-                case GuiEventEnum.UPDATE_COUNTER: {
-                    scene.events.on('create-pacman', () => {
-                        textsById.get(eid)?.setText(`Counter: ${++counter}`); 
-                    });
-                    scene.events.on('create-ghost', () => {
-                        textsById.get(eid)?.setText(`Counter: ${++counter}`);
-                    });
-                    break;
-                }
-                default: break;
-            }
+        const exitTexts = textQueryExit(world);
+        exitTexts.map(eid => {
+            textsById.get(eid)?.destroy();
+            textsById.delete(eid);
         });
 
         return world;

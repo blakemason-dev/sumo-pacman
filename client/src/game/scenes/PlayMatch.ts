@@ -5,7 +5,9 @@ import {
     addEntity,
     addComponent,
     System,
-    IWorld
+    IWorld,
+    deleteWorld,
+    resetWorld
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
@@ -41,21 +43,22 @@ export class PlayMatch extends Phaser.Scene {
 
     constructor() {
         super("play-match");
+        // console.log('constructor()');
     }
 
     init() {
-        console.log('init()');
+        // console.log('init()');
     }
 
     preload() {
-        console.log('preload()');
+        // console.log('preload()');
 
         // load all assets in library
         // AssetLibrary.loadAll(this);
     }
 
     create() {
-        console.log('create()');
+        // console.log('create()');
         this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
@@ -87,6 +90,7 @@ export class PlayMatch extends Phaser.Scene {
         // listen for playe ring out event
         eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
             if (eid === eidPlayer) {
+                resetWorld(this.world);
                 this.scene.start('find-match');
             }
         })

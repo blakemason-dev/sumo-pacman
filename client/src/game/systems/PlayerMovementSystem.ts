@@ -14,7 +14,6 @@ import { Transform } from '../components/Transform';
 import * as AssetLibrary from '../libraries/AssetLibrary';
 
 export const createPlayerMovementSystem = (scene: Phaser.Scene) => {
-    // const imagesById = new Map<number, Phaser.GameObjects.Image>();
     const movementQuery = defineQuery([ClientInput, PlayerMovement, Transform]);
     const movementQueryEnter = enterQuery(movementQuery);
     const movementQueryExit = exitQuery(movementQuery);
@@ -26,19 +25,15 @@ export const createPlayerMovementSystem = (scene: Phaser.Scene) => {
                 x: 0, y: 0
             }
             if (ClientInput.w_key_down[eid]) {
-                // Transform.position.y[eid] -= PlayerMovement.speed[eid];
                 velocity.y = -1;
             }
             if (ClientInput.a_key_down[eid]) {
-                // Transform.position.x[eid] -= PlayerMovement.speed[eid];
                 velocity.x = -1;
             }
             if (ClientInput.s_key_down[eid]) {
-                // Transform.position.y[eid] += PlayerMovement.speed[eid];
                 velocity.y = 1;
             }
             if (ClientInput.d_key_down[eid]) {
-                // Transform.position.x[eid] += PlayerMovement.speed[eid];
                 velocity.x = 1;
             }
 

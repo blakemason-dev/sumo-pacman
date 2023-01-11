@@ -21,8 +21,8 @@ export const createImageSystem = (scene: Phaser.Scene) => {
     const imageMovedQuery = defineQuery([Changed(Transform), Image]);
 
     return defineSystem((world: IWorld) => {
-        const enterSprites = imageQueryEnter(world);
-        enterSprites.map(eid => {
+        const enterImages = imageQueryEnter(world);
+        enterImages.map(eid => {
             imagesById.set(eid, scene.add.sprite(
                 Transform.position.x[eid],
                 Transform.position.y[eid],
@@ -45,6 +45,12 @@ export const createImageSystem = (scene: Phaser.Scene) => {
                 Transform.position.y[eid]
             );
             imagesById.get(eid)?.setRotation(Transform.rotation[eid]);
+        });
+
+        const exitImages = imageQueryExit(world);
+        exitImages.map(eid => {
+            imagesById.get(eid)?.destroy();
+            imagesById.delete(eid);
         });
 
         return world;

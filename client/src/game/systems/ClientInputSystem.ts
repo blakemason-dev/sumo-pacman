@@ -45,6 +45,14 @@ export const createClientInputSystem = (scene: Phaser.Scene) => {
             }
         });
 
+        const exitInputs = inputQueryExit(world);
+        exitInputs.map(eid => {
+            W_KEY.destroy();
+            A_KEY.destroy();
+            S_KEY.destroy();
+            D_KEY.destroy();
+        });
+
         return world;
-    })
+    });
 }

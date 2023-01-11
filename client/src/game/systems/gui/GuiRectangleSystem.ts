@@ -21,10 +21,6 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene, eventEmitter: Even
     const rectQueryEnter = enterQuery(rectQuery);
     const rectQueryExit = exitQuery(rectQuery);
 
-    // queries for events attached to rectangles
-    // const rectEventQuery = defineQuery([GuiRectangle, GuiEvent]);
-    // const rectEventQueryEnter = enterQuery(rectEventQuery);
-
     // define the sytem
     return defineSystem((world: IWorld) => {
         // rectangle initialisation with a transform
@@ -51,38 +47,15 @@ export const createGuiRectangleSystem = (scene: Phaser.Scene, eventEmitter: Even
                 rectsById.get(eid)?.setInteractive();
                 rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
                     eventEmitter.emit('GuiRectangle-POINTER_UP', eid);
-                    // scene.events.emit('GuiRectangle-POINTER_UP', eid);
                 });
             }
         });
 
-        // initialisation of rectangles with sibling event compoments
-        // const enterEventRects = rectEventQueryEnter(world);
-        // enterEventRects.map(eid => {
-        //     if (GuiRectangle.interactive[eid]) {
-        //         rectsById.get(eid)?.setInteractive();
-        //         rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
-        //             scene.events.emit('GuiRectangle-POINTER_UP', eid);
-        //         });
-        //     }
-
-            // rectsById.get(eid)?.setInteractive();
-            // switch (GuiEvent.type[eid]) {
-            //     case GuiEventEnum.CREATE_PACMAN: {
-            //         rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
-            //             scene.events.emit('create-pacman', 1);
-            //         });
-            //         break;
-            //     }
-            //     case GuiEventEnum.CREATE_GHOST: {
-            //         rectsById.get(eid)?.on(Phaser.Input.Events.POINTER_UP, () => {
-            //             scene.events.emit('create-ghost', 1);
-            //         });
-            //         break;
-            //     }
-            //     default: break;
-            // }
-        // });
+        const exitRects = rectQueryExit(world); 
+        exitRects.map(eid => {
+            rectsById.get(eid)?.destroy();
+            rectsById.delete(eid);
+        });
 
         return world;
     });

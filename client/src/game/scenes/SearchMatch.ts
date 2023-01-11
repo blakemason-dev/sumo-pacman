@@ -5,7 +5,8 @@ import {
     addEntity,
     addComponent,
     System,
-    IWorld
+    IWorld,
+    resetWorld
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
@@ -41,18 +42,18 @@ export class SearchMatch extends Phaser.Scene {
     }
 
     init() {
-        console.log('init()');
+        // console.log('init()');
     }
 
     preload() {
-        console.log('preload()');
+        // console.log('preload()');
 
         // load all assets in library
         // AssetLibrary.loadAll(this);
     }
 
     create() {
-        console.log('create()');
+        // console.log('create()');
         this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
@@ -82,6 +83,7 @@ export class SearchMatch extends Phaser.Scene {
         this.counterText.text = "Searching: " + (this.counter*0.001).toFixed(1);
 
         if (this.counter < 0) {
+            this.counter = 1000;
             this.scene.start('play-match');
         }
     }
