@@ -37,6 +37,11 @@ const getKey = (index: number) => {
     return key;
 }
 
+/**
+ * Loads all native phaser global assets for re-use across all scenes
+ * 
+ * @param scene The phaser scene this function is called from
+ */
 const loadAll = (scene: Phaser.Scene) => {
     library.map(asset => {
         switch (asset.type) {

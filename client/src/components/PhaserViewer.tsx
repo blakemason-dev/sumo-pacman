@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import { FindMatch } from "../game/scenes/FindMatch";
 import { SearchMatch } from "../game/scenes/SearchMatch";
 import { PlayMatch } from "../game/scenes/PlayMatch";
+import { BootStrap } from "../game/scenes/BootStrap";
 
 const PhaserViewer = () => {
     const gameInitialised = useRef(false);
@@ -12,7 +13,7 @@ const PhaserViewer = () => {
         width: 640,
         height: 360,
         parent: "phaser-viewer",
-        scene: [ FindMatch, SearchMatch, PlayMatch ]
+        scene: [ BootStrap, FindMatch, SearchMatch, PlayMatch ]
     }
 
     useEffect(() => {

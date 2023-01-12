@@ -51,7 +51,7 @@ const getIndex = (key: string) => {
 
 const getKey = (index: number) => {
     const key = library[index].key;
-    if (!key) throw Error(`${index} is not a valid index into the asset library`);
+    if (!key) throw Error(`${index} is not a valid index into the text library`);
     return key;
 }
 

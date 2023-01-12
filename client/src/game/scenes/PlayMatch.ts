@@ -7,7 +7,8 @@ import {
     System,
     IWorld,
     deleteWorld,
-    resetWorld
+    resetWorld,
+    removeEntity
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
@@ -32,8 +33,7 @@ import { createClientInputSystem } from '../systems/ClientInputSystem';
 import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
 import { Transform } from '../components/Transform';
 import { createRingOutCheckSystem } from '../systems/RingOutCheckSystem';
-
-const eventEmitter = new EventEmitter();
+import { BootStrap } from './BootStrap';
 
 export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
@@ -41,24 +41,32 @@ export class PlayMatch extends Phaser.Scene {
     // private guiTextSystem!: System;
     private systems: System[] = [];
 
+    private bootStrap!: BootStrap;
+
+    private switchScene = false;
+
+    private eventEmitter!: EventEmitter;
+
     constructor() {
         super("play-match");
-        // console.log('constructor()');
+        console.log('PlayMatch: constructor()');
     }
 
-    init() {
-        // console.log('init()');
+    init(data: any) {
+        console.log('PlayMatch: init()');
+
+        this.bootStrap = data.bootStrap;
     }
 
     preload() {
-        // console.log('preload()');
-
-        // load all assets in library
-        // AssetLibrary.loadAll(this);
+        console.log('PlayMatch: preload()');
     }
 
     create() {
-        // console.log('create()');
+        console.log('PlayMatch: create()');
+
+        this.eventEmitter = new EventEmitter();
+
         this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
@@ -85,13 +93,14 @@ export class PlayMatch extends Phaser.Scene {
         this.systems.push(createClientInputSystem(this));
         this.systems.push(createImageSystem(this));
         this.systems.push(createPlayerMovementSystem(this));
-        this.systems.push(createRingOutCheckSystem(this, eventEmitter));
+        this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
 
         // listen for playe ring out event
-        eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
+        this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
             if (eid === eidPlayer) {
-                resetWorld(this.world);
-                this.scene.start('find-match');
+                removeEntity(this.world, eidPlayer);
+                this.switchScene = true;
+                this.eventEmitter.removeAllListeners();
             }
         })
     }
@@ -102,6 +111,11 @@ export class PlayMatch extends Phaser.Scene {
         // run systems
         this.systems.map(system => {
             system(this.world);
-        })
+        });
+
+        // if time to switch scene, do it
+        if (this.switchScene) {
+            this.bootStrap.switch('play-match', 'find-match');
+        }
     }
 }

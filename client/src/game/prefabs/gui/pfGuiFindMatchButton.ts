@@ -30,8 +30,5 @@ export const createPfGuiFindMatchButton = (world: IWorld) => {
     GuiText.origin.x[eid] = 0.5;
     GuiText.origin.y[eid] = 0.5;
 
-    // addComponent(world, GuiEvent, eid);
-    // GuiEvent.type[eid] = GuiEventEnum.CLICKED_FIND_MATCH;
-
     return eid;
 }

@@ -40,6 +40,7 @@ export const createGuiTextSystem = (scene: Phaser.Scene) => {
 
         const exitTexts = textQueryExit(world);
         exitTexts.map(eid => {
+            console.log('Destroying textsById: ', eid);
             textsById.get(eid)?.destroy();
             textsById.delete(eid);
         });

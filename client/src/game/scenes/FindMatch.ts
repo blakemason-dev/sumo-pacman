@@ -7,7 +7,10 @@ import {
     System,
     IWorld,
     deleteWorld,
-    resetWorld
+    resetWorld,
+    removeEntity,
+    getEntityComponents,
+    removeComponent
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
@@ -15,46 +18,46 @@ import { EventEmitter } from 'events';
 import { GuiTransform } from '../components/gui/GuiTransform';
 import { createGuiRectangleSystem } from '../systems/gui/GuiRectangleSystem';
 import { createGuiTextSystem } from '../systems/gui/GuiTextSystem';
-import { PacmanGenerator } from '../components/PacmanGenerator';
-import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
-import { createImageSystem } from '../systems/ImageSystem';
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
-import { GhostGenerator } from '../components/GhostGenerator';
-import { createGuiButtonPrefabEntity } from '../prefabs/gui/pfGuiButton';
-import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
-import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
-import { GuiText } from '../components/gui/GuiText';
-import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
 import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
-
-const eventEmitter = new EventEmitter();
+import { BootStrap } from './BootStrap';
 
 export class FindMatch extends Phaser.Scene {
     private world!: IWorld;
     private guiRectangleSystem!: System;
     private guiTextSystem!: System;
 
+    private sceneText!: Phaser.GameObjects.Text;
+
+    private bootStrap!: BootStrap;
+
+    private switchScene = false;
+
+    private eventEmitter!: EventEmitter;
+
     constructor() {
         super("find-match");
-        console.log('constructor()');
+        console.log('FindMatch: constructor()');
     }
 
-    init() {
-        console.log('init()');
+    init(data: any) {
+        console.log('FindMatch: init()');
         console.log(this.world);
+
+        this.bootStrap = data.bootStrap;
     }
 
     preload() {
-        console.log('preload()');
-
-        // load all assets in library
-        AssetLibrary.loadAll(this);
+        console.log('FindMatch: preload()');
     }
 
     create() {
-        console.log('create()');
-        this.add.text(
+        console.log('FindMatch: create()');
+
+        this.eventEmitter = new EventEmitter();
+
+        this.sceneText = this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
             "Scene: FindMatch",
@@ -72,15 +75,17 @@ export class FindMatch extends Phaser.Scene {
         const eidFindMatchButton = createPfGuiFindMatchButton(this.world);
         GuiTransform.position.x[eidFindMatchButton] = this.scale.width*0.5;
         GuiTransform.position.y[eidFindMatchButton] = this.scale.height*0.5;
-        eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
+        this.eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
             if (eid === eidFindMatchButton) {
-                resetWorld(this.world);
-                this.scene.start('search-match');
+                this.sceneText.destroy();
+                removeEntity(this.world, eidFindMatchButton);
+                this.switchScene = true;
+                this.eventEmitter.removeAllListeners();
             }
         });
         
         // create systems
-        this.guiRectangleSystem = createGuiRectangleSystem(this, eventEmitter);
+        this.guiRectangleSystem = createGuiRectangleSystem(this, this.eventEmitter);
         this.guiTextSystem = createGuiTextSystem(this);
     }
 
@@ -90,5 +95,10 @@ export class FindMatch extends Phaser.Scene {
         // run systems
         this.guiRectangleSystem(this.world);
         this.guiTextSystem(this.world);
+
+        // if we got a switchscene message at some stage, change scenes
+        if (this.switchScene) {
+            this.bootStrap.switch('find-match', 'search-match');
+        }
     }
 }

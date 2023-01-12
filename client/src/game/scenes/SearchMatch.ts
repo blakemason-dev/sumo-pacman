@@ -26,6 +26,7 @@ import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
 import { GuiText } from '../components/gui/GuiText';
 import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
 import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
+import { BootStrap } from './BootStrap';
 
 const eventEmitter = new EventEmitter();
 
@@ -37,24 +38,31 @@ export class SearchMatch extends Phaser.Scene {
     private counter = 1000;
     private counterText!: Phaser.GameObjects.Text;
 
+    private sceneText!: Phaser.GameObjects.Text;
+
+    private switchScene = false;
+
+    private bootStrap!: BootStrap;
+
     constructor() {
         super("search-match");
+        console.log('SearchMatch: constructor()');
     }
 
-    init() {
-        // console.log('init()');
+    init(data: any) {
+        console.log('SearchMatch: init()');
+
+        this.bootStrap = data.bootStrap;
     }
 
     preload() {
-        // console.log('preload()');
-
-        // load all assets in library
-        // AssetLibrary.loadAll(this);
+        console.log('SearchMatch: preload()');
     }
 
     create() {
-        // console.log('create()');
-        this.add.text(
+        console.log('SearchMatch: create()');
+
+        this.sceneText = this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
             "Scene: SearchMatch",
@@ -83,8 +91,9 @@ export class SearchMatch extends Phaser.Scene {
         this.counterText.text = "Searching: " + (this.counter*0.001).toFixed(1);
 
         if (this.counter < 0) {
-            this.counter = 1000;
-            this.scene.start('play-match');
+            this.sceneText.destroy();
+            // this.counter = 1000;
+            this.bootStrap.switch('search-match', 'play-match');
         }
     }
 }
