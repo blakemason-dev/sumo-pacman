@@ -12,6 +12,9 @@ export class Pacman extends Schema {
     @type(Vector2)
     position: Vector2 = new Vector2();
 
+    @type(Vector2)
+    velocity: Vector2 = new Vector2();
+
     @type("number")
     charge: number = 0; // between 0 and 1
 

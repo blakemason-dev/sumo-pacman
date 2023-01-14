@@ -13,41 +13,26 @@ import {
 
 import { EventEmitter } from 'events';
 
-import { GuiTransform } from '../components/gui/GuiTransform';
-import { createGuiRectangleSystem } from '../systems/gui/GuiRectangleSystem';
-import { createGuiTextSystem } from '../systems/gui/GuiTextSystem';
-import { PacmanGenerator } from '../components/PacmanGenerator';
-import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
 import { createImageSystem } from '../systems/ImageSystem';
 
-import * as AssetLibrary from '../libraries/AssetLibrary';
-import { GhostGenerator } from '../components/GhostGenerator';
-import { createGuiButtonPrefabEntity } from '../prefabs/gui/pfGuiButton';
-import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
-import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
-import { GuiText } from '../components/gui/GuiText';
-import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
-import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
+
 import { createPfPlayerPacman } from '../prefabs/pfPlayerPacman';
 import { createClientInputSystem } from '../systems/ClientInputSystem';
 import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
 import { Transform } from '../components/Transform';
 import { createRingOutCheckSystem } from '../systems/RingOutCheckSystem';
 import { BootStrap } from './BootStrap';
-import { ServerLink } from '../components/network/ServerLink';
+import { ServerLink, ServerLinkType } from '../components/network/ServerLink';
 import { createServerLinkSystem } from '../systems/network/ServerLinkSystem';
+import { EntityServerLinkType } from '../../../../server/types/entities';
 
 export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
-    // private imageSystem!: System;
-    // private guiTextSystem!: System;
     private systems: System[] = [];
-
     private bootStrap!: BootStrap;
+    private eventEmitter!: EventEmitter;
 
     private switchScene = false;
-
-    private eventEmitter!: EventEmitter;
 
     constructor() {
         super("play-match");
@@ -90,10 +75,8 @@ export class PlayMatch extends Phaser.Scene {
         const eidPlayer = createPfPlayerPacman(this.world);
         Transform.position.x[eidPlayer] = this.scale.width*0.5;
         Transform.position.y[eidPlayer] = this.scale.height*0.5;
-
-        // add a server connection
-        const eidServerConnection = addEntity(this.world);
-        addComponent(this.world, ServerLink, eidServerConnection);
+        addComponent(this.world, ServerLink, eidPlayer);
+        ServerLink.linkType[eidPlayer] = EntityServerLinkType.Player;
 
         // create systems
         this.systems.push(createClientInputSystem(this));
@@ -106,7 +89,6 @@ export class PlayMatch extends Phaser.Scene {
         this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
             if (eid === eidPlayer) {
                 removeEntity(this.world, eidPlayer);
-                removeEntity(this.world, eidServerConnection);
                 this.switchScene = true;
                 this.eventEmitter.removeAllListeners();
             }
@@ -118,7 +100,6 @@ export class PlayMatch extends Phaser.Scene {
 
         // run systems
         this.systems.map(system => {
-            // console.log(system);
             system(this.world);
         });
 

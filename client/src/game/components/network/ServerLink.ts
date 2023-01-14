@@ -3,6 +3,12 @@ import {
     Types,
 } from 'bitecs';
 
+export enum ServerLinkType {
+    Player,
+    OtherPlayer,
+    NPC
+}
+
 export const ServerLink = defineComponent({
-    type: Types.ui16 
+    linkType: Types.ui16 
 });

@@ -4,12 +4,15 @@
 import Phaser from "phaser";
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
+import Server from "../services/Server";
 import { EndMatch } from "./EndMatch";
 import { FindMatch } from "./FindMatch";
 import { PlayMatch } from "./PlayMatch";
 import { SearchMatch } from "./SearchMatch";
 
 export class BootStrap extends Phaser.Scene {
+    server!: Server;
+
     constructor() {
         super('boot-strap');
         console.log('BootStrap: constructor()');
@@ -28,6 +31,9 @@ export class BootStrap extends Phaser.Scene {
 
     create() {
         console.log('Bootstrap: create()');
+
+        // connect to the server
+        this.server = new Server();
         
         // switch to the find match scene
         this.switch("", "find-match");
