@@ -40,6 +40,16 @@ const library = [
         },
         type: 'TEXT'
     },
+    {
+        key: 'find-new-match',
+        text: 'FIND NEW MATCH',
+        style: {
+            fontFamily: "arial",
+            fontSize: "20px",
+            color: "#000000"
+        },
+        type: 'TEXT'
+    },
 ];
 
 const getIndex = (key: string) => {

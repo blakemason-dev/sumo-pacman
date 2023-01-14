@@ -13,7 +13,7 @@ const PhaserViewer = () => {
         width: 640,
         height: 360,
         parent: "phaser-viewer",
-        scene: [ BootStrap, FindMatch, SearchMatch, PlayMatch ]
+        scene: [ BootStrap ]
     }
 
     useEffect(() => {

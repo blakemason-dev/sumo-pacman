@@ -20,10 +20,14 @@ import { createGuiRectangleSystem } from '../systems/gui/GuiRectangleSystem';
 import { createGuiTextSystem } from '../systems/gui/GuiTextSystem';
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
+import * as TextLibrary from '../libraries/TextLibrary';
+
 import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
 import { BootStrap } from './BootStrap';
+import { GuiText } from '../components/gui/GuiText';
+import { GuiRectangle } from '../components/gui/GuiRectangle';
 
-export class FindMatch extends Phaser.Scene {
+export class EndMatch extends Phaser.Scene {
     private world!: IWorld;
     private guiRectangleSystem!: System;
     private guiTextSystem!: System;
@@ -37,29 +41,29 @@ export class FindMatch extends Phaser.Scene {
     private eventEmitter!: EventEmitter;
 
     constructor() {
-        super("find-match");
-        console.log('FindMatch: constructor()');
+        super("end-match");
+        console.log('EndMatch: constructor()');
     }
 
     init(data: any) {
-        console.log('FindMatch: init()');
+        console.log('EndMatch: init()');
 
         this.bootStrap = data.bootStrap;
     }
 
     preload() {
-        console.log('FindMatch: preload()');
+        console.log('EndMatch: preload()');
     }
 
     create() {
-        console.log('FindMatch: create()');
+        console.log('EndMatch: create()');
 
         this.eventEmitter = new EventEmitter();
 
         this.sceneText = this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
-            "Scene: FindMatch",
+            "Scene: EndMatch",
             {
                 fontFamily: 'arial',
                 fontSize: '20px',
@@ -71,13 +75,15 @@ export class FindMatch extends Phaser.Scene {
         this.world = createWorld();
 
         // create find match button
-        const eidFindMatchButton = createPfGuiFindMatchButton(this.world);
-        GuiTransform.position.x[eidFindMatchButton] = this.scale.width*0.5;
-        GuiTransform.position.y[eidFindMatchButton] = this.scale.height*0.5;
+        const eidFindNewMatchButton = createPfGuiFindMatchButton(this.world);
+        GuiTransform.position.x[eidFindNewMatchButton] = this.scale.width*0.5;
+        GuiTransform.position.y[eidFindNewMatchButton] = this.scale.height*0.5;
+        GuiRectangle.width[eidFindNewMatchButton] = this.scale.width*0.33;
+        GuiText.textIndex[eidFindNewMatchButton] = TextLibrary.getIndex('find-new-match');
         this.eventEmitter.on('GuiRectangle-POINTER_UP', (eid) => {
-            if (eid === eidFindMatchButton) {
+            if (eid === eidFindNewMatchButton) {
                 this.sceneText.destroy();
-                removeEntity(this.world, eidFindMatchButton);
+                removeEntity(this.world, eidFindNewMatchButton);
                 this.switchScene = true;
                 this.eventEmitter.removeAllListeners();
             }
@@ -97,7 +103,7 @@ export class FindMatch extends Phaser.Scene {
 
         // if we got a switchscene message at some stage, change scenes
         if (this.switchScene) {
-            this.bootStrap.switch('find-match', 'search-match');
+            this.bootStrap.switch('end-match', 'search-match');
         }
     }
 }

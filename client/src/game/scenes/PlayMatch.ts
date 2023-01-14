@@ -115,7 +115,7 @@ export class PlayMatch extends Phaser.Scene {
 
         // if time to switch scene, do it
         if (this.switchScene) {
-            this.bootStrap.switch('play-match', 'find-match');
+            this.bootStrap.switch('play-match', 'end-match');
         }
     }
 }

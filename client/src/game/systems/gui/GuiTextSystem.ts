@@ -5,7 +5,6 @@ import {
     exitQuery,
     IWorld,
 } from 'bitecs';
-import { GuiEvent, GuiEventEnum } from '../../components/gui/GuiEvent';
 
 import { GuiText } from '../../components/gui/GuiText';
 import { GuiTransform } from '../../components/gui/GuiTransform';
@@ -17,8 +16,6 @@ export const createGuiTextSystem = (scene: Phaser.Scene) => {
     const textQuery = defineQuery([GuiText, GuiTransform]);
     const textQueryEnter = enterQuery(textQuery);
     const textQueryExit = exitQuery(textQuery);
-
-    let counter = 0;
 
     return defineSystem((world: IWorld) => {
         const enterTexts = textQueryEnter(world);

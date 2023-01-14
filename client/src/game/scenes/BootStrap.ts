@@ -4,6 +4,7 @@
 import Phaser from "phaser";
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
+import { EndMatch } from "./EndMatch";
 import { FindMatch } from "./FindMatch";
 import { PlayMatch } from "./PlayMatch";
 import { SearchMatch } from "./SearchMatch";
@@ -27,21 +28,25 @@ export class BootStrap extends Phaser.Scene {
 
     create() {
         console.log('Bootstrap: create()');
-        this.scene.launch('find-match', { 
-            bootStrap: this,
-        });
+        
+        // switch to the find match scene
+        this.switch("", "find-match");
     }
 
     switch(oldScene: string, newScene: string, data: any = {}) {
-        this.scene.remove(oldScene);
+        // remove the old scene if it exists
+        if (this.scene.get(oldScene)) {
+            this.scene.remove(oldScene);
+        }
 
+        // add the new scene
         if (!this.scene.get(newScene)) {
             switch (newScene) {
                 case 'find-match': { 
                     this.scene.add(
                         newScene,
                         FindMatch, 
-                        false,
+                        true,
                         { bootStrap: this, ...data }
                     );
                     break;
@@ -50,7 +55,7 @@ export class BootStrap extends Phaser.Scene {
                     this.scene.add(
                         newScene,
                         SearchMatch, 
-                        false,
+                        true,
                         { bootStrap: this, ...data }
                     );
                     break;
@@ -59,18 +64,22 @@ export class BootStrap extends Phaser.Scene {
                     this.scene.add(
                         newScene,
                         PlayMatch, 
-                        false,
+                        true,
+                        { bootStrap: this, ...data }
+                    );
+                    break;
+                }
+                case 'end-match': { 
+                    this.scene.add(
+                        newScene,
+                        EndMatch, 
+                        true,
                         { bootStrap: this, ...data }
                     );
                     break;
                 }
                 default: break;
             }
-        } else {
-            this.scene.launch(newScene, {
-                bootStrap: this,
-                ...data
-            });
         }
     }
 }
