@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@colyseus/schema": "^1.0.45",
     "bitecs": "^0.3.38",
+    "colyseus.js": "^0.14.13",
     "events": "^3.3.0",
     "phaser": "^3.55.2",
     "react": "^18.2.0",

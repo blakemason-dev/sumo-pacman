@@ -35,7 +35,7 @@ export class SearchMatch extends Phaser.Scene {
     private guiRectangleSystem!: System;
     private guiTextSystem!: System;
 
-    private counter = 1000;
+    private counter = 300;
     private counterText!: Phaser.GameObjects.Text;
 
     private sceneText!: Phaser.GameObjects.Text;
@@ -92,7 +92,6 @@ export class SearchMatch extends Phaser.Scene {
 
         if (this.counter < 0) {
             this.sceneText.destroy();
-            // this.counter = 1000;
             this.bootStrap.switch('search-match', 'play-match');
         }
     }

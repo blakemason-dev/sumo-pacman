@@ -34,6 +34,8 @@ import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
 import { Transform } from '../components/Transform';
 import { createRingOutCheckSystem } from '../systems/RingOutCheckSystem';
 import { BootStrap } from './BootStrap';
+import { ServerLink } from '../components/network/ServerLink';
+import { createServerLinkSystem } from '../systems/network/ServerLinkSystem';
 
 export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
@@ -62,7 +64,7 @@ export class PlayMatch extends Phaser.Scene {
         console.log('PlayMatch: preload()');
     }
 
-    create() {
+    async create() {
         console.log('PlayMatch: create()');
 
         this.eventEmitter = new EventEmitter();
@@ -84,21 +86,27 @@ export class PlayMatch extends Phaser.Scene {
         // create ECS world
         this.world = createWorld();
 
-        // create find match button
+        // create player pacman
         const eidPlayer = createPfPlayerPacman(this.world);
         Transform.position.x[eidPlayer] = this.scale.width*0.5;
         Transform.position.y[eidPlayer] = this.scale.height*0.5;
-        
+
+        // add a server connection
+        const eidServerConnection = addEntity(this.world);
+        addComponent(this.world, ServerLink, eidServerConnection);
+
         // create systems
         this.systems.push(createClientInputSystem(this));
-        this.systems.push(createImageSystem(this));
+        this.systems.push(await createServerLinkSystem(this));
         this.systems.push(createPlayerMovementSystem(this));
         this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
+        this.systems.push(createImageSystem(this));
 
         // listen for playe ring out event
         this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
             if (eid === eidPlayer) {
                 removeEntity(this.world, eidPlayer);
+                removeEntity(this.world, eidServerConnection);
                 this.switchScene = true;
                 this.eventEmitter.removeAllListeners();
             }
@@ -110,6 +118,7 @@ export class PlayMatch extends Phaser.Scene {
 
         // run systems
         this.systems.map(system => {
+            // console.log(system);
             system(this.world);
         });
 
