@@ -19,26 +19,6 @@ export const createServerLinkSystem = async (scene: Phaser.Scene) => {
     const client = new Client('ws://localhost:8500');
     const room = await client.joinOrCreate<iSumoPacmanState & Schema>('sumo-pacman');
 
-    // const pacmen = new Map<number, Pacman>();
-
-    // room.state.pacmen.onAdd = (player, key) => {
-    //     console.log(player, ' has been added at ', key);
-        
-    //     player.onChange = (changes) => {
-    //         changes.map(change => {
-    //             console.log('field: ', change.field);
-    //             console.log('value: ', change.value);
-    //             console.log('previousValue: ', change.previousValue);
-    //         });
-    //     }
-    // }
-
-    // ServerLink component workflow
-    // 1) Connect to room
-    // 2) Room stores sessionId
-    // 3) Once room is full it sends out all entities and their session id's
-    // 4) Client draws all entities received
-
     room.onMessage('start', () => {
         console.log('room is ready');
     });

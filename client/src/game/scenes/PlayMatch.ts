@@ -22,9 +22,10 @@ import { createPlayerMovementSystem } from '../systems/PlayerMovementSystem';
 import { Transform } from '../components/Transform';
 import { createRingOutCheckSystem } from '../systems/RingOutCheckSystem';
 import { BootStrap } from './BootStrap';
-import { ServerLink, ServerLinkType } from '../components/network/ServerLink';
-import { createServerLinkSystem } from '../systems/network/ServerLinkSystem';
-import { EntityServerLinkType } from '../../../../server/types/entities';
+import { ClientInput } from '../components/ClientInput';
+import { createServerMessageSystem } from '../systems/network/ServerMessageSystem';
+import { ServerMessageSender } from '../components/network/ServerMessageSender';
+import { createPfServerPacman } from '../prefabs/network/pfServerPacman';
 
 export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
@@ -71,28 +72,42 @@ export class PlayMatch extends Phaser.Scene {
         // create ECS world
         this.world = createWorld();
 
+        // create an input entity
+        const eidClientInput = addEntity(this.world);
+        addComponent(this.world, ClientInput, eidClientInput);
+        addComponent(this.world, ServerMessageSender, eidClientInput);
+
+        this.bootStrap.server.eventEmitter.on('state-changed', (state) => {
+            console.log('state changed');
+        });
+
+        // create two server controlled pacmen
+        const eidPlayerA = createPfServerPacman(this.world, 0);
+        const eidPlayerB = createPfServerPacman(this.world, 1);
+
         // create player pacman
-        const eidPlayer = createPfPlayerPacman(this.world);
-        Transform.position.x[eidPlayer] = this.scale.width*0.5;
-        Transform.position.y[eidPlayer] = this.scale.height*0.5;
+        // const eidPlayer = createPfPlayerPacman(this.world);
+        // Transform.position.x[eidPlayer] = this.scale.width*0.5;
+        // Transform.position.y[eidPlayer] = this.scale.height*0.5;
         // addComponent(this.world, ServerLink, eidPlayer);
         // ServerLink.linkType[eidPlayer] = EntityServerLinkType.Player;
 
         // create systems
         this.systems.push(createClientInputSystem(this));
+        this.systems.push(await createServerMessageSystem(this, this.bootStrap.server));
         // this.systems.push(await createServerLinkSystem(this));
-        this.systems.push(createPlayerMovementSystem(this));
-        this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
+        // this.systems.push(createPlayerMovementSystem(this));
+        // this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
         this.systems.push(createImageSystem(this));
 
         // listen for playe ring out event
-        this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
-            if (eid === eidPlayer) {
-                removeEntity(this.world, eidPlayer);
-                this.switchScene = true;
-                this.eventEmitter.removeAllListeners();
-            }
-        })
+        // this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
+        //     if (eid === eidPlayer) {
+        //         removeEntity(this.world, eidPlayer);
+        //         this.switchScene = true;
+        //         this.eventEmitter.removeAllListeners();
+        //     }
+        // })
     }
 
     update(t: number, dt: number) {
