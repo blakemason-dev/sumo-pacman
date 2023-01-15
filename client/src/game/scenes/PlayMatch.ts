@@ -75,12 +75,12 @@ export class PlayMatch extends Phaser.Scene {
         const eidPlayer = createPfPlayerPacman(this.world);
         Transform.position.x[eidPlayer] = this.scale.width*0.5;
         Transform.position.y[eidPlayer] = this.scale.height*0.5;
-        addComponent(this.world, ServerLink, eidPlayer);
-        ServerLink.linkType[eidPlayer] = EntityServerLinkType.Player;
+        // addComponent(this.world, ServerLink, eidPlayer);
+        // ServerLink.linkType[eidPlayer] = EntityServerLinkType.Player;
 
         // create systems
         this.systems.push(createClientInputSystem(this));
-        this.systems.push(await createServerLinkSystem(this));
+        // this.systems.push(await createServerLinkSystem(this));
         this.systems.push(createPlayerMovementSystem(this));
         this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
         this.systems.push(createImageSystem(this));

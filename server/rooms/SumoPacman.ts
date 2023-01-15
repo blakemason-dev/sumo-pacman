@@ -15,6 +15,7 @@ export default class SumoPacman extends Room<SumoPacmanState> {
 
         });
 
+        // handle movement
         this.onMessage(Message.ClientMoveUp, (client) => {
             console.log(client.sessionId, ' says: Message.ClientMoveUp');
             this.state.pacmen.map(pacman => {
@@ -32,11 +33,12 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         newPacman.sessionId = client.sessionId;
         this.state.pacmen.push(newPacman);
 
-        console.log(this.state.pacmen.length);
+        console.log('Pacmen length: ', this.state.pacmen.length);
 
         // check if ready to start
         if (this.state.pacmen.length === this.maxClients) {
             this.broadcast('found-match');
+            console.log('found match');
         }
     }
 

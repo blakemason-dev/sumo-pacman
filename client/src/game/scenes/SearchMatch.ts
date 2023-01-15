@@ -85,20 +85,13 @@ export class SearchMatch extends Phaser.Scene {
             }
         ).setOrigin(0.5,0.5);
 
+        // try join the server i.e. find a match
+        this.bootStrap.server.join();
+
         // once we get a match started message, we can switch scenes
-        this.bootStrap.server.eventEmitter.on('found-match', (state) => {
-            this.bootStrap.server.join();
+        this.bootStrap.server.eventEmitter.on('start-match', (state) => {
+            console.log('SearchMath: Starting Match')
             this.bootStrap.switch('search-match', 'play-match');
         });
-    }
-
-    update(t: number, dt: number) {
-        // this.counter -= dt;
-        // this.counterText.text = "Searching: " + (this.counter*0.001).toFixed(1);
-
-        // if (this.counter < 0) {
-        //     this.sceneText.destroy();
-        //     this.bootStrap.switch('search-match', 'play-match');
-        // }
     }
 }
