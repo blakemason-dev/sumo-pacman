@@ -7,16 +7,13 @@ import {
     Not
 } from 'bitecs';
 import { ClientInput } from '../components/ClientInput';
-
-import { Image } from '../components/Image';
-import { ServerLink } from '../components/network/ServerLink';
 import { PlayerMovement } from '../components/PlayerMovement';
 import { Transform } from '../components/Transform';
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
 
 export const createPlayerMovementSystem = (scene: Phaser.Scene) => {
-    const movementQuery = defineQuery([ClientInput, PlayerMovement, Transform, Not(ServerLink)]);
+    const movementQuery = defineQuery([ClientInput, PlayerMovement, Transform ]);
     const movementQueryEnter = enterQuery(movementQuery);
     const movementQueryExit = exitQuery(movementQuery);
 

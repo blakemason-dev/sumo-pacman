@@ -4,6 +4,8 @@ import SumoPacmanState from './SumoPacmanState';
 import { Pacman } from '../types/iSumoPacmanState';
 import { Message } from '../types/messages';
 
+const PACMAN_SPEED = 3;
+
 export default class SumoPacman extends Room<SumoPacmanState> {
     onCreate() {
         console.log("SumoPacman: onCreate()");
@@ -19,14 +21,14 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         this.onMessage(Message.ClientMoveUp, (client) => {
             this.state.pacmen.map(pacman => {
                 if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.y = -1;
+                    pacman.velocity.y = 1;
                 }
             });
         });
         this.onMessage(Message.ClientMoveDown, (client) => {
             this.state.pacmen.map(pacman => {
                 if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.y = 1;
+                    pacman.velocity.y = -1;
                 }
             });
         });
@@ -59,15 +61,22 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         // check if ready to start
         if (this.state.pacmen.length === this.maxClients) {
             // set player positions and angle
-            this.state.pacmen[0].position.x = -100;
-            this.state.pacmen[0].position.y = 180;
+            this.state.pacmen[0].position.x = -2.5;
+            this.state.pacmen[0].position.y = 0;
             this.state.pacmen[0].angle = 0;
-            this.state.pacmen[1].position.x = 100;
-            this.state.pacmen[1].position.y = 180;
+            this.state.pacmen[1].position.x = 2.5;
+            this.state.pacmen[1].position.y = 0;
             this.state.pacmen[1].angle = 180;
 
-            // tell clients match has been found
-            this.broadcast('found-match');
+            // tell clients match has been found and pass along some game world
+            // configuration
+            const gameConfig = {
+                width: 10 * 1920/1080,
+                height: 10,
+                originX: 0.5,
+                originY: 0.5
+            }
+            this.broadcast('start-match', gameConfig);
         }
     }
 
@@ -81,11 +90,16 @@ export default class SumoPacman extends Room<SumoPacmanState> {
     }
 
     update(dt: number) {
-        // console.log('test');
         // move all pacmen
         this.state.pacmen.map(pacman => {
-            pacman.position.x += pacman.velocity.x * dt;
-            pacman.position.y += pacman.velocity.y * dt;
+            // normalise the velocity
+            let length = 1;
+            if (pacman.velocity.x > 0 || pacman.velocity.y > 0) {
+                length = Math.sqrt(pacman.velocity.x**2 + pacman.velocity.y**2);
+            }
+
+            pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
+            pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
             pacman.velocity.x = 0;
             pacman.velocity.y = 0;
         });

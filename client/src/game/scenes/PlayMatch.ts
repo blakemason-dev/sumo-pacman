@@ -50,7 +50,7 @@ export class PlayMatch extends Phaser.Scene {
         console.log('PlayMatch: preload()');
     }
 
-    async create() {
+    async create(serverGameConfig: any) {
         console.log('PlayMatch: create()');
 
         this.eventEmitter = new EventEmitter();
@@ -77,37 +77,22 @@ export class PlayMatch extends Phaser.Scene {
         addComponent(this.world, ClientInput, eidClientInput);
         addComponent(this.world, ServerMessageSender, eidClientInput);
 
-        this.bootStrap.server.eventEmitter.on('state-changed', (state) => {
-            console.log('state changed');
-        });
-
         // create two server controlled pacmen
-        const eidPlayerA = createPfServerPacman(this.world, 0);
-        const eidPlayerB = createPfServerPacman(this.world, 1);
+        const eidPlayerA = createPfServerPacman(this.world, 0, serverGameConfig);
+        const eidPlayerB = createPfServerPacman(this.world, 1, serverGameConfig);
 
-        // create player pacman
-        // const eidPlayer = createPfPlayerPacman(this.world);
-        // Transform.position.x[eidPlayer] = this.scale.width*0.5;
-        // Transform.position.y[eidPlayer] = this.scale.height*0.5;
-        // addComponent(this.world, ServerLink, eidPlayer);
-        // ServerLink.linkType[eidPlayer] = EntityServerLinkType.Player;
+        // CREATE SYSTEMS - ORDER IS IMPORTANT!
 
-        // create systems
+        // 1. Inputs
         this.systems.push(createClientInputSystem(this));
         this.systems.push(await createServerMessageSystem(this, this.bootStrap.server));
-        // this.systems.push(await createServerLinkSystem(this));
-        // this.systems.push(createPlayerMovementSystem(this));
-        // this.systems.push(createRingOutCheckSystem(this, this.eventEmitter));
-        this.systems.push(createImageSystem(this));
+        
+        // 2. Game and UI logic
 
-        // listen for playe ring out event
-        // this.eventEmitter.on('RingOutCheck-ENTITY_OUT', (eid) => {
-        //     if (eid === eidPlayer) {
-        //         removeEntity(this.world, eidPlayer);
-        //         this.switchScene = true;
-        //         this.eventEmitter.removeAllListeners();
-        //     }
-        // })
+        // 3. Server to display coordinate conversions
+
+        // 4. Renderers
+        this.systems.push(createImageSystem(this));
     }
 
     update(t: number, dt: number) {

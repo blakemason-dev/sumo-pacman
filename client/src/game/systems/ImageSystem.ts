@@ -4,13 +4,17 @@ import {
     enterQuery,
     exitQuery,
     IWorld,
-    Changed
+    Changed,
+    Not
 } from 'bitecs';
 
 import { Image } from '../components/Image';
+import { ServerCoordinateConverter } from '../components/network/ServerCoordinateConverter';
 import { Transform } from '../components/Transform';
 
 import * as AssetLibrary from '../libraries/AssetLibrary';
+
+import * as ConvertServer from '../utilities/ConvertServer';
 
 export const createImageSystem = (scene: Phaser.Scene) => {
     const imagesById = new Map<number, Phaser.GameObjects.Image>();
@@ -18,7 +22,10 @@ export const createImageSystem = (scene: Phaser.Scene) => {
     const imageQueryEnter = enterQuery(imageQuery);
     const imageQueryExit = exitQuery(imageQuery);
 
-    const imageMovedQuery = defineQuery([Changed(Transform), Image]);
+    const imageMovedQuery = defineQuery([Changed(Transform), Image, Not(ServerCoordinateConverter)]);
+
+    const imageConversionQuery = defineQuery([Changed(Transform), Image, ServerCoordinateConverter]);
+    const imageConversionQueryEnter = enterQuery(defineQuery([Transform, Image, ServerCoordinateConverter]));
 
     return defineSystem((world: IWorld) => {
         const enterImages = imageQueryEnter(world);
@@ -38,6 +45,13 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             )
         });
 
+        const exitImages = imageQueryExit(world);
+        exitImages.map(eid => {
+            imagesById.get(eid)?.destroy();
+            imagesById.delete(eid);
+        });
+
+        // move images that don't have server conversions
         const imagesMoved = imageMovedQuery(world);
         imagesMoved.map(eid => {
             imagesById.get(eid)?.setPosition(
@@ -47,10 +61,40 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             imagesById.get(eid)?.setRotation(Transform.rotation[eid]);
         });
 
-        const exitImages = imageQueryExit(world);
-        exitImages.map(eid => {
-            imagesById.get(eid)?.destroy();
-            imagesById.delete(eid);
+        // initialise any images that have converters
+        const enterImageConversions = imageConversionQueryEnter(world);
+        enterImageConversions.map(eid => {
+            // create a converter config
+            const config = {
+                width: ServerCoordinateConverter.width[eid],
+                height: ServerCoordinateConverter.height[eid],
+                originX: ServerCoordinateConverter.originX[eid],
+                originY: ServerCoordinateConverter.originY[eid],
+            }
+
+            // update image position
+            imagesById.get(eid)?.setPosition(
+                ConvertServer.xToPhaser(Transform.position.x[eid], config, scene.scale),
+                ConvertServer.yToPhaser(Transform.position.y[eid], config, scene.scale)
+            );
+        });
+
+        // move images that do have server coordinate conversions
+        const imageConversions = imageConversionQuery(world);
+        imageConversions.map(eid => {
+            // create a converter config
+            const config = {
+                width: ServerCoordinateConverter.width[eid],
+                height: ServerCoordinateConverter.height[eid],
+                originX: ServerCoordinateConverter.originX[eid],
+                originY: ServerCoordinateConverter.originY[eid],
+            }
+
+            // update image position
+            imagesById.get(eid)?.setPosition(
+                ConvertServer.xToPhaser(Transform.position.x[eid], config, scene.scale),
+                ConvertServer.yToPhaser(Transform.position.y[eid], config, scene.scale)
+            );
         });
 
         return world;

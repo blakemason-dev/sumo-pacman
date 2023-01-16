@@ -10,7 +10,6 @@ import { Client, Room } from 'colyseus.js';
 import { Schema } from '@colyseus/schema';
 import iSumoPacmanState, { Pacman } from '../../../../../server/types/iSumoPacmanState';
 import { Message } from '../../../../../server/types/messages';
-import { ServerLink } from '../../components/network/ServerLink';
 import { ClientInput } from '../../components/ClientInput';
 import { Transform } from '../../components/Transform';
 import Server from '../../services/Server';
@@ -36,11 +35,10 @@ export const createServerMessageSystem = async (scene: Phaser.Scene, server: Ser
         // make sure we have a room
         if (!room) return world;
 
-        // Handle ServerLink's
+        // Handle sending messages to server
         const enterSenders = senderQueryEnter(world);
         enterSenders.map(eid => {
-            console.log('Entered ServerMessenger: ', eid);
-            room.send(Message.ClientEntityID, {eid: eid, serverLinkType: ServerLink.linkType[eid]});
+            
         });
 
         const senders = senderQuery(world);
@@ -64,8 +62,18 @@ export const createServerMessageSystem = async (scene: Phaser.Scene, server: Ser
             console.log('Exited ServerMessenger: ', eid);
         });
 
+        // handle receiving messages from the server
         const enterReceivers = receiverQueryEnter(world);
         enterReceivers.map(eid => {
+            // get first state of each pacman
+            server.room?.state.pacmen.map((pacman: Pacman, index: number) => {
+                if (ServerPacmanController.serverIndex[eid] === index) {
+                    Transform.position.x[eid] = pacman.position.x;
+                    Transform.position.y[eid] = pacman.position.y;
+                }
+            });
+
+            // if this is very first time started, set the state-changed event on callback
             if (numReceivers === 0) {
                 server.eventEmitter.on('state-changed', (state) => {
                     state.pacmen.map((pacman: Pacman, index: number) => {

@@ -10,14 +10,18 @@ import { Image } from '../../components/Image';
 import { Transform } from '../../components/Transform';
 import { ServerPacmanController } from '../../components/network/ServerPacmanController';
 import { ServerMessageReceiver } from '../../components/network/ServerMessageReceiver';
+import { ServerCoordinateConverter } from '../../components/network/ServerCoordinateConverter';
+import { ServerGameConfig } from '../../../../../server/types/game-config';
 
-export const createPfServerPacman = (world: IWorld, serverIndex: number) => {
+export const createPfServerPacman = (world: IWorld, serverIndex: number, serverGameConfig: ServerGameConfig) => {
     const peid = addEntity(world);
 
     addComponent(world, Image, peid);
     Image.textureIndex[peid] = AssetLibrary.getIndex('pacman');
     Image.width[peid] = 32;
     Image.height[peid] = 32;
+    Image.origin.x[peid] = 0.5;
+    Image.origin.y[peid] = 0.5;
 
     addComponent(world, Transform, peid);
     Transform.position.x[peid] = 0;
@@ -27,6 +31,13 @@ export const createPfServerPacman = (world: IWorld, serverIndex: number) => {
     ServerPacmanController.serverIndex[peid] = serverIndex;
 
     addComponent(world, ServerMessageReceiver, peid);
+
+    addComponent(world, ServerCoordinateConverter, peid);
+    ServerCoordinateConverter.width[peid] = serverGameConfig.width;
+    ServerCoordinateConverter.height[peid] = serverGameConfig.height;
+    ServerCoordinateConverter.originX[peid] = serverGameConfig.originX;
+    ServerCoordinateConverter.originY[peid] = serverGameConfig.originY;
+    
 
     return peid;
 }

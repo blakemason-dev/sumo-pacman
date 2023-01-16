@@ -20,8 +20,8 @@ export default class Server {
             this.eventEmitter.emit("state-changed", state);
         });
 
-        this.room.onMessage('found-match', (state) => {
-            this.eventEmitter.emit('start-match', state);
+        this.room.onMessage('start-match', (serverGameConfig) => {
+            this.eventEmitter.emit('start-match', serverGameConfig);
         });
 
         this.room.onMessage('client-left', (sessionId) => {
