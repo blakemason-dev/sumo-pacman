@@ -6,6 +6,7 @@ import {
 // Component: ServerCoordinateConverter
 // Usage: Attach to phaser components to automatically convert dimensions
 //        received in server game coordinates into phaser screen coordinates
+// Systems: ImageSystem
 
 export const ServerCoordinateConverter = defineComponent({
     width: Types.f32,

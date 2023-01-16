@@ -16,8 +16,11 @@ import { ServerGameConfig } from '../../../../../server/types/game-config';
 export const createPfServerPacman = (world: IWorld, serverIndex: number, serverGameConfig: ServerGameConfig) => {
     const peid = addEntity(world);
 
+    addComponent(world, ServerPacmanController, peid);
+    ServerPacmanController.serverIndex[peid] = serverIndex;
+
     addComponent(world, Image, peid);
-    Image.textureIndex[peid] = AssetLibrary.getIndex('pacman');
+    Image.textureIndex[peid] = AssetLibrary.getIndex(serverIndex === 0 ? 'yellow-pacman' : 'blue-pacman');
     Image.width[peid] = 32;
     Image.height[peid] = 32;
     Image.origin.x[peid] = 0.5;
@@ -26,9 +29,6 @@ export const createPfServerPacman = (world: IWorld, serverIndex: number, serverG
     addComponent(world, Transform, peid);
     Transform.position.x[peid] = 0;
     Transform.position.y[peid] = 0;
-
-    addComponent(world, ServerPacmanController, peid);
-    ServerPacmanController.serverIndex[peid] = serverIndex;
 
     addComponent(world, ServerMessageReceiver, peid);
 

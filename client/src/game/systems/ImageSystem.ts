@@ -77,6 +77,9 @@ export const createImageSystem = (scene: Phaser.Scene) => {
                 ConvertServer.xToPhaser(Transform.position.x[eid], config, scene.scale),
                 ConvertServer.yToPhaser(Transform.position.y[eid], config, scene.scale)
             );
+
+            // update image angle
+            imagesById.get(eid)?.setAngle(ConvertServer.radToPhaserAngle(Transform.rotation[eid]));
         });
 
         // move images that do have server coordinate conversions
@@ -95,6 +98,9 @@ export const createImageSystem = (scene: Phaser.Scene) => {
                 ConvertServer.xToPhaser(Transform.position.x[eid], config, scene.scale),
                 ConvertServer.yToPhaser(Transform.position.y[eid], config, scene.scale)
             );
+
+            // update image angle
+            imagesById.get(eid)?.setAngle(ConvertServer.radToPhaserAngle(Transform.rotation[eid]));
         });
 
         return world;

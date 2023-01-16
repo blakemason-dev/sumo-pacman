@@ -70,6 +70,7 @@ export const createServerMessageSystem = async (scene: Phaser.Scene, server: Ser
                 if (ServerPacmanController.serverIndex[eid] === index) {
                     Transform.position.x[eid] = pacman.position.x;
                     Transform.position.y[eid] = pacman.position.y;
+                    Transform.rotation[eid] = pacman.angle;
                 }
             });
 
@@ -80,6 +81,7 @@ export const createServerMessageSystem = async (scene: Phaser.Scene, server: Ser
                         if (ServerPacmanController.serverIndex[eid] === index) {
                             Transform.position.x[eid] = pacman.position.x;
                             Transform.position.y[eid] = pacman.position.y;
+                            Transform.rotation[eid] = pacman.angle;
                         }
                     })
                 });

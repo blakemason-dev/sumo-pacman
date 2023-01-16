@@ -4,7 +4,7 @@ import SumoPacmanState from './SumoPacmanState';
 import { Pacman } from '../types/iSumoPacmanState';
 import { Message } from '../types/messages';
 
-const PACMAN_SPEED = 3;
+const PACMAN_SPEED = 5;
 
 export default class SumoPacman extends Room<SumoPacmanState> {
     onCreate() {
@@ -66,7 +66,7 @@ export default class SumoPacman extends Room<SumoPacmanState> {
             this.state.pacmen[0].angle = 0;
             this.state.pacmen[1].position.x = 2.5;
             this.state.pacmen[1].position.y = 0;
-            this.state.pacmen[1].angle = 180;
+            this.state.pacmen[1].angle = Math.PI;
 
             // tell clients match has been found and pass along some game world
             // configuration
@@ -94,12 +94,18 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         this.state.pacmen.map(pacman => {
             // normalise the velocity
             let length = 1;
-            if (pacman.velocity.x > 0 || pacman.velocity.y > 0) {
+            if (Math.abs(pacman.velocity.x) > 0 || Math.abs(pacman.velocity.y) > 0) {
                 length = Math.sqrt(pacman.velocity.x**2 + pacman.velocity.y**2);
-            }
 
-            pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
-            pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
+                // also calc a new angle while here
+                pacman.angle = Math.atan2(pacman.velocity.y, pacman.velocity.x);
+
+                // set new position
+                pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
+                pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
+            }
+            
+            // reset velocity for next input/time step
             pacman.velocity.x = 0;
             pacman.velocity.y = 0;
         });

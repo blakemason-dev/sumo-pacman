@@ -3,8 +3,13 @@
 
 const library = [
     {
-        key: 'pacman',
-        src: '/src/game/assets/pacman.png',
+        key: 'yellow-pacman',
+        src: '/src/game/assets/yellow-pacman.png',
+        type: 'IMAGE'
+    },
+    {
+        key: 'blue-pacman',
+        src: '/src/game/assets/blue-pacman.png',
         type: 'IMAGE'
     },
     {
