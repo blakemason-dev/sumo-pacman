@@ -4,5 +4,5 @@
 - Add physics movement and collision ECS to server
 - Create shrinking ring and victory/defeat condition
 - Create victory/defeat text on client
-- --Add orientation changes to pacmen--
-- --Change colour of player 2--
+- ~~Add orientation changes to pacmen~~
+- ~~Change colour of player 2~~
