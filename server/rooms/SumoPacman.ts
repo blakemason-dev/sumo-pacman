@@ -1,21 +1,27 @@
+import {
+    IWorld,
+    System,
+    createWorld
+} from 'bitecs';
+
 import { Room, Client } from 'colyseus';
 
 import SumoPacmanState from './SumoPacmanState';
 import { Pacman } from '../types/iSumoPacmanState';
 import { Message } from '../types/messages';
+import { createP2PhysicsSystem } from '../ecs/systems/P2PhysicsSystem';
 
 const PACMAN_SPEED = 5;
 
 export default class SumoPacman extends Room<SumoPacmanState> {
+    private world!: IWorld;
+    private systems: System[] = [];
+
     onCreate() {
         console.log("SumoPacman: onCreate()");
         this.maxClients = 2;
 
         this.setState(new SumoPacmanState());
-
-        this.onMessage(Message.ClientEntityID, (data) => {
-
-        });
 
         // handle movement
         this.onMessage(Message.ClientMoveUp, (client) => {
@@ -49,6 +55,12 @@ export default class SumoPacman extends Room<SumoPacmanState> {
 
         // set a room game loop
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
+
+        // ECS
+        this.world = createWorld();
+
+        // create systems
+        this.systems.push(createP2PhysicsSystem());
     }
 
     onJoin(client: Client) {
@@ -90,24 +102,32 @@ export default class SumoPacman extends Room<SumoPacmanState> {
     }
 
     update(dt: number) {
-        // move all pacmen
-        this.state.pacmen.map(pacman => {
-            // normalise the velocity
-            let length = 1;
-            if (Math.abs(pacman.velocity.x) > 0 || Math.abs(pacman.velocity.y) > 0) {
-                length = Math.sqrt(pacman.velocity.x**2 + pacman.velocity.y**2);
+        if (!this.world) return;
 
-                // also calc a new angle while here
-                pacman.angle = Math.atan2(pacman.velocity.y, pacman.velocity.x);
-
-                // set new position
-                pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
-                pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
-            }
-            
-            // reset velocity for next input/time step
-            pacman.velocity.x = 0;
-            pacman.velocity.y = 0;
+        // run systems
+        this.systems.map(system => {
+            system(this.world);
         });
+
+
+        // move all pacmen
+        // this.state.pacmen.map(pacman => {
+        //     // normalise the velocity
+        //     let length = 1;
+        //     if (Math.abs(pacman.velocity.x) > 0 || Math.abs(pacman.velocity.y) > 0) {
+        //         length = Math.sqrt(pacman.velocity.x**2 + pacman.velocity.y**2);
+
+        //         // also calc a new angle while here
+        //         pacman.angle = Math.atan2(pacman.velocity.y, pacman.velocity.x);
+
+        //         // set new position
+        //         pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
+        //         pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
+        //     }
+            
+        //     // reset velocity for next input/time step
+        //     pacman.velocity.x = 0;
+        //     pacman.velocity.y = 0;
+        // });
     }
 }
