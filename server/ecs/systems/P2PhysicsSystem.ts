@@ -1,3 +1,5 @@
+
+
 import {
     defineSystem,
     defineQuery,
@@ -14,7 +16,7 @@ import { P2Body } from '../components/P2Body';
 export const createP2PhysicsSystem = () => {
     // create our physics world
     const p2World = new p2.World({
-        gravity: [0, 0]
+        gravity: [0, -9.81]
     });
     p2World.defaultContactMaterial.friction = 0.3;
     p2World.defaultContactMaterial.restitution = 0.3;
@@ -30,6 +32,15 @@ export const createP2PhysicsSystem = () => {
 
     const FIXED_TIME_STEP = 1 / 20;
     let previous_ms = Date.now();
+
+    // DELETE THIS LATER
+    const groundBody = new p2.Body({ 
+        mass: 0,
+        position: [0, -5]
+    });
+    const groundShape = new p2.Plane();
+    groundBody.addShape(groundShape);
+    p2World.addBody(groundBody);
 
     return defineSystem((ecsWorld: IWorld) => {
         // find time deltas
@@ -53,19 +64,28 @@ export const createP2PhysicsSystem = () => {
                     case 2: bod.type = p2.Body.KINEMATIC; break;
                     default: break;
                 }
+
+                var shape = new p2.Circle({ radius: 0.5 });
+                bod.addShape(shape);
+
+                p2World.addBody(bod);
+                console.log(bod);
             }
         });
 
-        // // during update of system
-        // const p2Bodies = p2BodyQuery(ecsWorld);
-        // p2Bodies.map(eid => {
-        //     const { time } = ecsWorld;
-        // });
-
-
-
         // step the physics world
-        p2World.step(dt, FIXED_TIME_STEP, 10);
+        p2World.step(dt/1000, FIXED_TIME_STEP, 10);
+
+        // // after world is stepped, sync p2 bodies with components
+        const p2Bodies = p2BodyQuery(ecsWorld);
+        p2Bodies.map(eid => {
+            const bod = p2BodiesById.get(eid);
+            if (bod) {
+                P2Body.position.x[eid] = bod.position[0];
+                P2Body.position.y[eid] = bod.position[1];
+                P2Body.angle[eid] = bod.angle;
+            }
+        });
 
         return ecsWorld;
     })

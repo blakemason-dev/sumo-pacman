@@ -10,6 +10,10 @@ import SumoPacmanState from './SumoPacmanState';
 import { Pacman } from '../types/iSumoPacmanState';
 import { Message } from '../types/messages';
 import { createP2PhysicsSystem } from '../ecs/systems/P2PhysicsSystem';
+import { createPfPacmanEntity } from '../ecs/prefabs/pfPacmanEntity';
+import { P2Body } from '../ecs/components/P2Body';
+import { PacmanUpdater } from '../ecs/components/PacmanUpdater';
+import { createSumoPacmanStateSyncSystem } from '../ecs/systems/SumoPacmanStateSyncSystem';
 
 const PACMAN_SPEED = 5;
 
@@ -53,42 +57,19 @@ export default class SumoPacman extends Room<SumoPacmanState> {
             });
         });
 
-        // set a room game loop
-        this.setSimulationInterval((deltaTime) => this.update(deltaTime));
-
-        // ECS
-        this.world = createWorld();
-
-        // create systems
-        this.systems.push(createP2PhysicsSystem());
     }
 
     onJoin(client: Client) {
         console.log(client.sessionId, 'joined');
 
+        // add new pacman with session Id
         const newPacman = new Pacman();
         newPacman.sessionId = client.sessionId;
         this.state.pacmen.push(newPacman);
 
         // check if ready to start
         if (this.state.pacmen.length === this.maxClients) {
-            // set player positions and angle
-            this.state.pacmen[0].position.x = -2.5;
-            this.state.pacmen[0].position.y = 0;
-            this.state.pacmen[0].angle = 0;
-            this.state.pacmen[1].position.x = 2.5;
-            this.state.pacmen[1].position.y = 0;
-            this.state.pacmen[1].angle = Math.PI;
-
-            // tell clients match has been found and pass along some game world
-            // configuration
-            const gameConfig = {
-                width: 10 * 1920/1080,
-                height: 10,
-                originX: 0.5,
-                originY: 0.5
-            }
-            this.broadcast('start-match', gameConfig);
+            this.onStartMatch();
         }
     }
 
@@ -99,6 +80,43 @@ export default class SumoPacman extends Room<SumoPacmanState> {
                 this.state.pacmen.deleteAt(index);
             }
         });
+    }
+
+    onStartMatch() {
+        // set a room game loop
+        this.setSimulationInterval((deltaTime) => this.update(deltaTime));
+
+        // ECS
+        this.world = createWorld();
+
+        // create pacmen prefabs
+        const eidPacmanA = createPfPacmanEntity(this.world);
+        P2Body.position.x[eidPacmanA] = -2.5;
+        P2Body.position.y[eidPacmanA] = 0;
+        P2Body.angle[eidPacmanA] = 0;
+        PacmanUpdater.serverIndex[eidPacmanA] = 0;
+
+        const eidPacmanB = createPfPacmanEntity(this.world);
+        P2Body.position.x[eidPacmanB] = 2.5;
+        P2Body.position.y[eidPacmanB] = 0;
+        P2Body.angle[eidPacmanB] = Math.PI;
+        PacmanUpdater.serverIndex[eidPacmanB] = 1;
+
+        // create systems
+        this.systems.push(createP2PhysicsSystem());
+        this.systems.push(createSumoPacmanStateSyncSystem(this.state.pacmen));
+
+        // tell clients match has been found and pass along some game world
+        // configuration
+        const gameConfig = {
+            width: 10 * 1920 / 1080,
+            height: 10,
+            originX: 0.5,
+            originY: 0.5
+        }
+
+        // tell the clients match has been started
+        this.broadcast('start-match', gameConfig);
     }
 
     update(dt: number) {
@@ -124,7 +142,7 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         //         pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
         //         pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
         //     }
-            
+
         //     // reset velocity for next input/time step
         //     pacman.velocity.x = 0;
         //     pacman.velocity.y = 0;
