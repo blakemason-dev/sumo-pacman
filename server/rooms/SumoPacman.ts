@@ -14,12 +14,16 @@ import { createPfPacmanEntity } from '../ecs/prefabs/pfPacmanEntity';
 import { P2Body } from '../ecs/components/P2Body';
 import { PacmanUpdater } from '../ecs/components/PacmanUpdater';
 import { createSumoPacmanStateSyncSystem } from '../ecs/systems/SumoPacmanStateSyncSystem';
+import { createClientMessageSystem } from '../ecs/systems/ClientMessageSystem';
+import { createClientMovementSystem } from '../ecs/systems/ClientMovementSystem';
 
 const PACMAN_SPEED = 5;
 
 export default class SumoPacman extends Room<SumoPacmanState> {
     private world!: IWorld;
+    private clientMessageSystem!: System;
     private systems: System[] = [];
+    private clientByEntityId = new Map<number, Client>();
 
     onCreate() {
         console.log("SumoPacman: onCreate()");
@@ -27,36 +31,8 @@ export default class SumoPacman extends Room<SumoPacmanState> {
 
         this.setState(new SumoPacmanState());
 
-        // handle movement
-        this.onMessage(Message.ClientMoveUp, (client) => {
-            this.state.pacmen.map(pacman => {
-                if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.y = 1;
-                }
-            });
-        });
-        this.onMessage(Message.ClientMoveDown, (client) => {
-            this.state.pacmen.map(pacman => {
-                if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.y = -1;
-                }
-            });
-        });
-        this.onMessage(Message.ClientMoveLeft, (client) => {
-            this.state.pacmen.map(pacman => {
-                if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.x = -1;
-                }
-            });
-        });
-        this.onMessage(Message.ClientMoveRight, (client) => {
-            this.state.pacmen.map(pacman => {
-                if (pacman.sessionId === client.sessionId) {
-                    pacman.velocity.x = 1;
-                }
-            });
-        });
-
+        // ECS
+        this.world = createWorld();
     }
 
     onJoin(client: Client) {
@@ -67,6 +43,23 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         newPacman.sessionId = client.sessionId;
         this.state.pacmen.push(newPacman);
 
+        // create pacman prefab
+        const eidPacman = createPfPacmanEntity(this.world);
+        if (this.state.pacmen.length === 1) {
+            P2Body.position.x[eidPacman] = -2.5;
+            P2Body.position.y[eidPacman] = 0;
+            P2Body.angle[eidPacman] = 0;
+            PacmanUpdater.serverIndex[eidPacman] = 0;
+        } else if (this.state.pacmen.length === 2) {
+            P2Body.position.x[eidPacman] = 2.5;
+            P2Body.position.y[eidPacman] = 0;
+            P2Body.angle[eidPacman] = Math.PI;
+            PacmanUpdater.serverIndex[eidPacman] = 1;
+        }
+
+        // update the client map
+        this.clientByEntityId.set(eidPacman, client);
+
         // check if ready to start
         if (this.state.pacmen.length === this.maxClients) {
             this.onStartMatch();
@@ -75,9 +68,18 @@ export default class SumoPacman extends Room<SumoPacmanState> {
 
     onLeave(client: Client) {
         console.log(client.sessionId, 'left');
+        
+        // clean up the room state
         this.state.pacmen.forEach((pacman, index) => {
             if (pacman.sessionId === client.sessionId) {
                 this.state.pacmen.deleteAt(index);
+            }
+        });
+
+        // clean up the client entity map
+        this.clientByEntityId.forEach((cl, key, map) => {
+            if (cl === client) {
+                map.delete(key);
             }
         });
     }
@@ -86,25 +88,11 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         // set a room game loop
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
-        // ECS
-        this.world = createWorld();
-
-        // create pacmen prefabs
-        const eidPacmanA = createPfPacmanEntity(this.world);
-        P2Body.position.x[eidPacmanA] = -2.5;
-        P2Body.position.y[eidPacmanA] = 0;
-        P2Body.angle[eidPacmanA] = 0;
-        PacmanUpdater.serverIndex[eidPacmanA] = 0;
-
-        const eidPacmanB = createPfPacmanEntity(this.world);
-        P2Body.position.x[eidPacmanB] = 2.5;
-        P2Body.position.y[eidPacmanB] = 0;
-        P2Body.angle[eidPacmanB] = Math.PI;
-        PacmanUpdater.serverIndex[eidPacmanB] = 1;
-
         // create systems
+        this.systems.push(createClientMovementSystem());
         this.systems.push(createP2PhysicsSystem());
         this.systems.push(createSumoPacmanStateSyncSystem(this.state.pacmen));
+        this.systems.push(createClientMessageSystem(this, this.clientByEntityId));
 
         // tell clients match has been found and pass along some game world
         // configuration
@@ -126,26 +114,5 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         this.systems.map(system => {
             system(this.world);
         });
-
-
-        // move all pacmen
-        // this.state.pacmen.map(pacman => {
-        //     // normalise the velocity
-        //     let length = 1;
-        //     if (Math.abs(pacman.velocity.x) > 0 || Math.abs(pacman.velocity.y) > 0) {
-        //         length = Math.sqrt(pacman.velocity.x**2 + pacman.velocity.y**2);
-
-        //         // also calc a new angle while here
-        //         pacman.angle = Math.atan2(pacman.velocity.y, pacman.velocity.x);
-
-        //         // set new position
-        //         pacman.position.x += pacman.velocity.x / length * dt * 0.001 * PACMAN_SPEED;
-        //         pacman.position.y += pacman.velocity.y / length * dt * 0.001 * PACMAN_SPEED;
-        //     }
-
-        //     // reset velocity for next input/time step
-        //     pacman.velocity.x = 0;
-        //     pacman.velocity.y = 0;
-        // });
     }
 }
