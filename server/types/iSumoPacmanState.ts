@@ -27,6 +27,7 @@ export class Pacman extends Schema {
 
 export interface iSumoPacmanState {
     pacmen: ArraySchema<Pacman>;
+    ringRadius: number;
 }
 
 export default iSumoPacmanState;

@@ -14,5 +14,6 @@ export const P2Body = defineComponent({
         x: Types.f32,
         y: Types.f32
     },
-    angle: Types.f32
+    angle: Types.f32,
+    collisionResponse: Types.ui8,
 });

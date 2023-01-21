@@ -14,10 +14,10 @@ export const createPfPacmanEntity = (world: IWorld) => {
 
     addComponent(world, P2Body, eid);
     P2Body.mass[eid] = 5;
-    P2Body.type[eid] = 2;   // 0 = static, 1 = dynamic, 2 = kinematic
+    P2Body.type[eid] = 1;   // 0 = static, 1 = dynamic, 2 = kinematic
 
     addComponent(world, P2ShapeCircle, eid);
-    P2ShapeCircle.radius[eid] = 1;
+    P2ShapeCircle.radius[eid] = 0.5;
     // need to add offset code
 
     addComponent(world, PacmanUpdater, eid);
