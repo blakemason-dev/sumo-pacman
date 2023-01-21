@@ -30,4 +30,5 @@ gameServer.define('sumo-pacman', SumoPacman);
 app.use('/colyseus', monitor());
 
 gameServer.listen(port);
+gameServer.simulateLatency(250);
 console.log(`Listening on port:${port}`);

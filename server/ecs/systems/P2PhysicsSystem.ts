@@ -12,6 +12,7 @@ import {
 
 import p2 from 'p2';
 import { P2Body } from '../components/P2Body';
+import { P2ShapeCircle } from '../components/P2ShapeCircle';
 
 export const createP2PhysicsSystem = () => {
     // create our physics world
@@ -22,25 +23,25 @@ export const createP2PhysicsSystem = () => {
     p2World.defaultContactMaterial.restitution = 0.3;
     p2World.defaultContactMaterial.stiffness = 1e7;
 
+    p2World.on('beginContact', (data: any) => {
+        console.log('contact');
+    })
+
     // create a body map
     const p2BodiesById = new Map<number, p2.Body>();
-    
+    const p2ShapeCirclesById = new Map<number, p2.Circle>();
+
     // create our body query
     const p2BodyQuery = defineQuery([P2Body]);
     const p2BodyQueryEnter = enterQuery(p2BodyQuery);
     const p2BodyQueryExit = exitQuery(p2BodyQuery);
 
+    const p2ShapeCircleQuery = defineQuery([P2Body, P2ShapeCircle]);
+    const p2ShapeCircleQueryEnter = enterQuery(p2ShapeCircleQuery);
+    const p2ShapeCircleQueryExit = exitQuery(p2ShapeCircleQuery);
+
     const FIXED_TIME_STEP = 1 / 20;
     let previous_ms = Date.now();
-
-    // DELETE THIS LATER
-    const groundBody = new p2.Body({ 
-        mass: 0,
-        position: [0, -5]
-    });
-    const groundShape = new p2.Plane();
-    groundBody.addShape(groundShape);
-    p2World.addBody(groundBody);
 
     return defineSystem((ecsWorld: IWorld) => {
         // find time deltas
@@ -51,24 +52,39 @@ export const createP2PhysicsSystem = () => {
         // // when bodies first run in system
         const enterP2Bodies = p2BodyQueryEnter(ecsWorld);
         enterP2Bodies.map(eid => {
-            p2BodiesById.set(eid, new p2.Body({
+            const bod = new p2.Body({
                 mass: P2Body.mass[eid],
                 position: [P2Body.position.x[eid], P2Body.position.y[eid]],
                 angle: P2Body.angle[eid]
+            })
+
+            switch (P2Body.type[eid]) {
+                case 0: bod.type = p2.Body.STATIC; break;
+                case 1: bod.type = p2.Body.DYNAMIC; break;
+                case 2: bod.type = p2.Body.KINEMATIC; break;
+                default: break;
+            }
+
+            bod.addShape(new p2.Circle({ radius: 1 }));
+
+            p2World.addBody(bod);
+
+            p2BodiesById.set(eid, bod);
+        });
+
+        // when shapes first run in system
+        const enterP2ShapeCircles = p2ShapeCircleQueryEnter(ecsWorld);
+        enterP2ShapeCircles.map(eid => {
+            console.log('here');
+            p2ShapeCirclesById.set(eid, new p2.Circle({
+                radius: P2ShapeCircle.radius[eid],
             }));
-            const bod = p2BodiesById.get(eid);
-            if (bod) {
-                switch (P2Body.type[eid]) {
-                    case 0: bod.type = p2.Body.STATIC; break;
-                    case 1: bod.type = p2.Body.DYNAMIC; break;
-                    case 2: bod.type = p2.Body.KINEMATIC; break;
-                    default: break;
-                }
 
-                var shape = new p2.Circle({ radius: 0.5 });
-                bod.addShape(shape);
-
-                p2World.addBody(bod);
+            // add shape to matching body
+            const shape = p2ShapeCirclesById.get(eid);
+            if (shape) {
+                p2BodiesById.get(eid)?.addShape(shape);
+                console.log('and here');
             }
         });
 
@@ -83,7 +99,7 @@ export const createP2PhysicsSystem = () => {
         });
 
         // 2) step the physics world
-        p2World.step(dt/1000, FIXED_TIME_STEP, 10);
+        p2World.step(dt / 1000, FIXED_TIME_STEP, 10);
 
         // 3) apply new physics states to P2Bodies
         p2Bodies.map(eid => {
@@ -91,7 +107,7 @@ export const createP2PhysicsSystem = () => {
             if (bod) {
                 P2Body.position.x[eid] = bod.position[0];
                 P2Body.position.y[eid] = bod.position[1];
-                // P2Body.angle[eid] = bod.angle;
+                P2Body.angle[eid] = bod.angle;
             }
         });
 
