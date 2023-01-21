@@ -10,22 +10,6 @@ import {
 } from 'bitecs';
 
 import { EventEmitter } from 'events';
-
-import { GuiTransform } from '../components/gui/GuiTransform';
-import { createGuiRectangleSystem } from '../systems/gui/GuiRectangleSystem';
-import { createGuiTextSystem } from '../systems/gui/GuiTextSystem';
-import { PacmanGenerator } from '../components/PacmanGenerator';
-import { createPacmanGeneratorSystem } from '../systems/PacmanGeneratorSystem';
-import { createImageSystem } from '../systems/ImageSystem';
-
-import * as AssetLibrary from '../libraries/AssetLibrary';
-import { GhostGenerator } from '../components/GhostGenerator';
-import { createGuiButtonPrefabEntity } from '../prefabs/gui/pfGuiButton';
-import { createGhostGeneratorSystem } from '../systems/GhostGeneratorSystem';
-import { GuiEvent, GuiEventEnum } from '../components/gui/GuiEvent';
-import { GuiText } from '../components/gui/GuiText';
-import { createGuiCounterPrefabEntity } from '../prefabs/gui/pfGuiCounter';
-import { createPfGuiFindMatchButton } from '../prefabs/gui/pfGuiFindMatchButton';
 import { BootStrap } from './BootStrap';
 
 const eventEmitter = new EventEmitter();

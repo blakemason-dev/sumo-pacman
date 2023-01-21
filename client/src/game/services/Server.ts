@@ -29,6 +29,10 @@ export default class Server {
         });
     }
 
+    startClientInputListener() {
+
+    }
+
     leave() {
         this.room?.leave();
     }

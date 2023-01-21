@@ -88,11 +88,15 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         // set a room game loop
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
-        // create systems
+        // process inputs
+        this.systems.push(createClientMessageSystem(this, this.clientByEntityId));
+
+        // update game logic
         this.systems.push(createClientMovementSystem());
         this.systems.push(createP2PhysicsSystem());
+
+        // send world state
         this.systems.push(createSumoPacmanStateSyncSystem(this.state.pacmen));
-        this.systems.push(createClientMessageSystem(this, this.clientByEntityId));
 
         // tell clients match has been found and pass along some game world
         // configuration

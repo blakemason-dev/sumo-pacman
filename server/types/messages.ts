@@ -1,7 +1,13 @@
 export enum Message {
-    ClientMoveUp,
-    ClientMoveDown,
-    ClientMoveLeft,
-    ClientMoveRight,
-    ClientEntityID,
+    ClientMoveUpBegin,
+    ClientMoveUpEnd,
+
+    ClientMoveDownBegin,
+    ClientMoveDownEnd,
+
+    ClientMoveLeftBegin,
+    ClientMoveLeftEnd,
+
+    ClientMoveRightBegin,
+    ClientMoveRightEnd,
 }

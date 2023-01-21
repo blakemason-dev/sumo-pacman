@@ -72,7 +72,7 @@ export const createP2PhysicsSystem = () => {
             }
         });
 
-        // apply any velocities to bodies
+        // 1) apply P2Body actions to bodies
         const p2Bodies = p2BodyQuery(ecsWorld);
         p2Bodies.map(eid => {
             const bod = p2BodiesById.get(eid);
@@ -82,16 +82,16 @@ export const createP2PhysicsSystem = () => {
             }
         });
 
-        // step the physics world
+        // 2) step the physics world
         p2World.step(dt/1000, FIXED_TIME_STEP, 10);
 
-        // // after world is stepped, sync p2 bodies with components
+        // 3) apply new physics states to P2Bodies
         p2Bodies.map(eid => {
             const bod = p2BodiesById.get(eid);
             if (bod) {
                 P2Body.position.x[eid] = bod.position[0];
                 P2Body.position.y[eid] = bod.position[1];
-                P2Body.angle[eid] = bod.angle;
+                // P2Body.angle[eid] = bod.angle;
             }
         });
 

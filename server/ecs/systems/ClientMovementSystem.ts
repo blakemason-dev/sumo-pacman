@@ -8,16 +8,14 @@ import {
     Not
 } from 'bitecs';
 
-import { Pacman } from '../../types/iSumoPacmanState';
 import { ClientMovement } from '../components/ClientMovement';
 import { P2Body } from '../components/P2Body';
-import { PacmanUpdater } from '../components/PacmanUpdater';
 
 export const createClientMovementSystem = () => {
     // create queries
     const clientMoveQuery = defineQuery([P2Body, ClientMovement]);
 
-    const PACMAN_SPEED = 2.5;
+    const PACMAN_SPEED = 1.5;
 
     return defineSystem((ecsWorld: IWorld) => {
 
@@ -48,7 +46,7 @@ export const createClientMovementSystem = () => {
                 // also calc a new angle while here
                 angle = Math.atan2(velY, velX);
 
-                // set new velocity
+                // set new velocity and angle
                 P2Body.velocity.x[eid] = velX / length * PACMAN_SPEED;
                 P2Body.velocity.y[eid] = velY / length * PACMAN_SPEED;
                 P2Body.angle[eid] = angle;

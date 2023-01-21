@@ -13,59 +13,73 @@ import {
 } from 'bitecs';
 import { Client } from 'colyseus';
 import SumoPacman from '../../rooms/SumoPacman';
-
-import { Pacman } from '../../types/iSumoPacmanState';
 import { Message } from '../../types/messages';
 import { ClientMovement } from '../components/ClientMovement';
-import { P2Body } from '../components/P2Body';
-import { PacmanUpdater } from '../components/PacmanUpdater';
-
-
 
 export const createClientMessageSystem = (sumoPacman: SumoPacman, clientsByEid: Map<number, Client>) => {
-    const movementQuery = defineQuery([ClientMovement]);
 
-    // handle movement messages
-    sumoPacman.onMessage(Message.ClientMoveUp, (client) => {
-        clientsByEid.forEach((cl, key, map) => {
+    sumoPacman.onMessage(Message.ClientMoveUpBegin, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
             if (client === cl) {
-                ClientMovement.up[key] = 1;
+                ClientMovement.up[eid] = 1;
             }
         })
     });
-    sumoPacman.onMessage(Message.ClientMoveDown, (client) => {
-        clientsByEid.forEach((cl, key, map) => {
+    sumoPacman.onMessage(Message.ClientMoveUpEnd, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
             if (client === cl) {
-                ClientMovement.down[key] = 1;
+                ClientMovement.up[eid] = 0;
             }
         })
     });
-    sumoPacman.onMessage(Message.ClientMoveLeft, (client) => {
-        clientsByEid.forEach((cl, key, map) => {
+
+    sumoPacman.onMessage(Message.ClientMoveDownBegin, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
             if (client === cl) {
-                ClientMovement.left[key] = 1;
+                ClientMovement.down[eid] = 1;
             }
         })
     });
-    sumoPacman.onMessage(Message.ClientMoveRight, (client) => {
-        clientsByEid.forEach((cl, key, map) => {
+    sumoPacman.onMessage(Message.ClientMoveDownEnd, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
             if (client === cl) {
-                ClientMovement.right[key] = 1;
+                ClientMovement.down[eid] = 0;
+            }
+        })
+    });
+
+    sumoPacman.onMessage(Message.ClientMoveLeftBegin, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
+            if (client === cl) {
+                ClientMovement.left[eid] = 1;
+            }
+        })
+    });
+    sumoPacman.onMessage(Message.ClientMoveLeftEnd, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
+            if (client === cl) {
+                ClientMovement.left[eid] = 0;
+            }
+        })
+    });
+
+    sumoPacman.onMessage(Message.ClientMoveRightBegin, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
+            if (client === cl) {
+                ClientMovement.right[eid] = 1;
+            }
+        })
+    });
+    sumoPacman.onMessage(Message.ClientMoveRightEnd, (client) => {
+        clientsByEid.forEach((cl, eid, map) => {
+            if (client === cl) {
+                ClientMovement.right[eid] = 0;
             }
         })
     });
 
 
     return defineSystem((ecsWorld: IWorld) => {
-        // each loop reset all clientmovement components
-        const queryMovements = movementQuery(ecsWorld);
-        queryMovements.map(eid => {
-            ClientMovement.up[eid] = 0;
-            ClientMovement.down[eid] = 0;
-            ClientMovement.left[eid] = 0;
-            ClientMovement.right[eid] = 0;
-        });
-
         return ecsWorld;
     })
 }

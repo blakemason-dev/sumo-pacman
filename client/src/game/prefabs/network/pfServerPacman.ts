@@ -9,7 +9,6 @@ import * as AssetLibrary from '../../libraries/AssetLibrary';
 import { Image } from '../../components/Image';
 import { Transform } from '../../components/Transform';
 import { ServerPacmanController } from '../../components/network/ServerPacmanController';
-import { ServerMessageReceiver } from '../../components/network/ServerMessageReceiver';
 import { ServerCoordinateConverter } from '../../components/network/ServerCoordinateConverter';
 import { ServerGameConfig } from '../../../../../server/types/game-config';
 
@@ -30,14 +29,11 @@ export const createPfServerPacman = (world: IWorld, serverIndex: number, serverG
     Transform.position.x[peid] = 0;
     Transform.position.y[peid] = 0;
 
-    addComponent(world, ServerMessageReceiver, peid);
-
     addComponent(world, ServerCoordinateConverter, peid);
     ServerCoordinateConverter.width[peid] = serverGameConfig.width;
     ServerCoordinateConverter.height[peid] = serverGameConfig.height;
     ServerCoordinateConverter.originX[peid] = serverGameConfig.originX;
     ServerCoordinateConverter.originY[peid] = serverGameConfig.originY;
-    
 
     return peid;
 }

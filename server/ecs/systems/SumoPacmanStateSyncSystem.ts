@@ -25,9 +25,13 @@ export const createSumoPacmanStateSyncSystem = (pacmen: Pacman[]) => {
         const updaters = updaterQuery(ecsWorld);
 
         updaters.map(eid => {
-            pacmen[PacmanUpdater.serverIndex[eid]].position.x = P2Body.position.x[eid];
-            pacmen[PacmanUpdater.serverIndex[eid]].position.y = P2Body.position.y[eid];
-            pacmen[PacmanUpdater.serverIndex[eid]].angle = P2Body.angle[eid];
+            // check the queried pacman still exists
+            const idx = PacmanUpdater.serverIndex[eid];
+            if (pacmen[idx]) {
+                pacmen[idx].position.x = P2Body.position.x[eid];
+                pacmen[idx].position.y = P2Body.position.y[eid];
+                pacmen[idx].angle = P2Body.angle[eid];
+            }
         });
 
         return ecsWorld;
