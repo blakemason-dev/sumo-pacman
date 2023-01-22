@@ -13,11 +13,11 @@ const yToPhaser = (serverY: number, serverGameConfig: ServerGameConfig, phaserSc
     return height - serverY * height / serverGameConfig.height - serverGameConfig.originY * height;
 }
 
-// const dimToPhaser = (p2_dim: number, p2_width: number, phaser_scale: Phaser.Scale.ScaleManager) => {
-//     const { width } = phaser_scale;
+const dimToPhaser = (dimension: number, serverGameConfig: ServerGameConfig, phaserScale: Phaser.Scale.ScaleManager) => {
+    const { height } = phaserScale;
 
-//     return p2_dim * width / p2_width;
-// }
+    return dimension * height / serverGameConfig.height;
+}
 
 const radToPhaserAngle = (p2_rad: number) => {
     p2_rad = p2_rad % (2*Math.PI);
@@ -27,4 +27,4 @@ const radToPhaserAngle = (p2_rad: number) => {
     return Phaser.Math.RadToDeg(-p2_rad);
 }
 
-export { xToPhaser, yToPhaser, radToPhaserAngle };
+export { xToPhaser, yToPhaser, dimToPhaser, radToPhaserAngle };

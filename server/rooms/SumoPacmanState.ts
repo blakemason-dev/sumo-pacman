@@ -7,5 +7,5 @@ export default class SumoPacmanState extends Schema implements iSumoPacmanState 
     pacmen: ArraySchema<Pacman> = new ArraySchema<Pacman>();
 
     @type("number")
-    ringRadius: number = 5;
+    ringRadius: number = 4.5;
 }

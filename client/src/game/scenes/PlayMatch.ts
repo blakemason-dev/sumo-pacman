@@ -20,14 +20,21 @@ import { createPfServerPacman } from '../prefabs/network/pfServerPacman';
 import { ClientInputSystem } from '../services/ClientInputSystem';
 import { createServerMessageSystem } from '../systems/network/ServerMessageSystem';
 
+import * as ConvertServer from '../utilities/ConvertServer';
+import { NameTag } from '../components/NameTag';
+import { createNameTagSystem } from '../systems/NameTagSystem';
+
 export class PlayMatch extends Phaser.Scene {
     private world!: IWorld;
     private systems: System[] = [];
     private bootStrap!: BootStrap;
-    private eventEmitter!: EventEmitter;
     private clientInputSystem!: ClientInputSystem;
 
+    private ring!: Phaser.GameObjects.Arc;
+    private serverGameConfig!: any;
+
     private switchScene = false;
+    private victory = false;
 
     constructor() {
         super("play-match");
@@ -47,7 +54,7 @@ export class PlayMatch extends Phaser.Scene {
     async create(serverGameConfig: any) {
         console.log('PlayMatch: create()');
 
-        this.eventEmitter = new EventEmitter();
+        this.serverGameConfig = serverGameConfig;
 
         this.add.text(
             this.scale.width * 0.025,
@@ -60,8 +67,8 @@ export class PlayMatch extends Phaser.Scene {
             }
         ).setOrigin(0, 0);
 
-        const redRing = this.add.circle(320, 180, 160, 0x222222, 1);
-        redRing.setStrokeStyle(3, 0xff0000);
+        this.ring = this.add.circle(this.scale.width/2, this.scale.height/2, 160, 0x333333, 1);
+        this.ring.setStrokeStyle(3, 0xff0000);
 
         // create ECS world
         this.world = createWorld();
@@ -70,8 +77,15 @@ export class PlayMatch extends Phaser.Scene {
         const eidPlayerA = createPfServerPacman(this.world, 0, serverGameConfig);
         const eidPlayerB = createPfServerPacman(this.world, 1, serverGameConfig);
         
+        // add a name tag to this clients entity
+        if (this.bootStrap.server.pacmanIndex === 0) {
+            addComponent(this.world, NameTag, eidPlayerA);
+        } else {
+            addComponent(this.world, NameTag, eidPlayerB);
+        }
+
         // 1) Process server messages
-        this.systems.push(await createServerMessageSystem(this, this.bootStrap.server));
+        this.systems.push(createServerMessageSystem(this, this.bootStrap.server));
 
         // 2) Process client inputs
         this.clientInputSystem = new ClientInputSystem(this, this.bootStrap.server);
@@ -83,6 +97,14 @@ export class PlayMatch extends Phaser.Scene {
         // 3c) Update UI
 
         this.systems.push(createImageSystem(this));
+        this.systems.push(createNameTagSystem(this));
+
+        // listen for a victory/defeat
+        this.bootStrap.server.eventEmitter.on('game-over', (data) => {
+            console.log(data);
+            this.victory = data.victory;
+            this.switchScene = true;
+        });
     }
 
     update(t: number, dt: number) {
@@ -102,9 +124,21 @@ export class PlayMatch extends Phaser.Scene {
             system(this.world);
         });
 
+        // update ring size
+        const radius = this.bootStrap.server.room?.state.ringRadius;
+        if (radius) {
+            this.ring.setRadius(ConvertServer.dimToPhaser(
+                radius,
+                this.serverGameConfig,
+                this.scale
+            ));
+        }
+
+
         // if time to switch scene, do it
         if (this.switchScene) {
-            this.bootStrap.switch('play-match', 'end-match');
+            console.log(this.victory);
+            this.bootStrap.switch('play-match', 'end-match', { victory: this.victory });
         }
     }
 }

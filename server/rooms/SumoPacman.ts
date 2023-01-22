@@ -16,14 +16,17 @@ import { PacmanUpdater } from '../ecs/components/PacmanUpdater';
 import { createSumoPacmanStateSyncSystem } from '../ecs/systems/SumoPacmanStateSyncSystem';
 import { createClientMessageSystem } from '../ecs/systems/ClientMessageSystem';
 import { createClientMovementSystem } from '../ecs/systems/ClientMovementSystem';
+import { createRingOutCheckerSystem } from '../ecs/systems/RingOutCheckerSystem';
+import { createShrinkingRingSystem } from '../ecs/systems/ShrinkingRingSystem';
 
-const PACMAN_SPEED = 5;
 
 export default class SumoPacman extends Room<SumoPacmanState> {
     private world!: IWorld;
-    private clientMessageSystem!: System;
+    // private clientMessageSystem!: System;
     private systems: System[] = [];
     private clientByEntityId = new Map<number, Client>();
+
+    private gameOver = false;
 
     onCreate() {
         console.log("SumoPacman: onCreate()");
@@ -44,7 +47,7 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         this.state.pacmen.push(newPacman);
 
         // create pacman prefab
-        const eidPacman = createPfPacmanEntity(this.world);
+        const eidPacman = createPfPacmanEntity(this.world, this.state.ringRadius);
         if (this.state.pacmen.length === 1) {
             P2Body.position.x[eidPacman] = -2.5;
             P2Body.position.y[eidPacman] = 0;
@@ -56,6 +59,9 @@ export default class SumoPacman extends Room<SumoPacmanState> {
             P2Body.angle[eidPacman] = Math.PI;
             PacmanUpdater.serverIndex[eidPacman] = 1;
         }
+
+        // tell the client what its server index is
+        client.send('pacman-index', this.state.pacmen.length - 1);
 
         // update the client map
         this.clientByEntityId.set(eidPacman, client);
@@ -85,6 +91,7 @@ export default class SumoPacman extends Room<SumoPacmanState> {
     }
 
     onStartMatch() {
+
         // set a room game loop
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
@@ -94,6 +101,8 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         // update game logic
         this.systems.push(createClientMovementSystem());
         this.systems.push(createP2PhysicsSystem());
+        this.systems.push(createRingOutCheckerSystem(this));
+        this.systems.push(createShrinkingRingSystem(this));
 
         // send world state
         this.systems.push(createSumoPacmanStateSyncSystem(this.state.pacmen));
@@ -111,8 +120,24 @@ export default class SumoPacman extends Room<SumoPacmanState> {
         this.broadcast('start-match', gameConfig);
     }
 
+    onStopMatch() {
+        this.gameOver = true;
+    }
+
+    ringOut(eid: number) {
+        this.clientByEntityId.forEach((cl, key, map) => {
+            if (eid === key) {
+                cl.send('game-over', { victory: false });
+            } else {
+                cl.send('game-over', { victory: true });
+            }
+        });
+
+        this.onStopMatch();
+    }
+
     update(dt: number) {
-        if (!this.world) return;
+        if (!this.world || this.gameOver) return;
 
         // run systems
         this.systems.map(system => {

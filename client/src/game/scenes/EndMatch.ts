@@ -33,6 +33,7 @@ export class EndMatch extends Phaser.Scene {
     private guiTextSystem!: System;
 
     private sceneText!: Phaser.GameObjects.Text;
+    private victoryText!: Phaser.GameObjects.Text;
 
     private bootStrap!: BootStrap;
 
@@ -55,7 +56,7 @@ export class EndMatch extends Phaser.Scene {
         console.log('EndMatch: preload()');
     }
 
-    create() {
+    create(data: any) {
         console.log('EndMatch: create()');
 
         this.eventEmitter = new EventEmitter();
@@ -63,13 +64,24 @@ export class EndMatch extends Phaser.Scene {
         this.sceneText = this.add.text(
             this.scale.width*0.025,
             this.scale.width*0.025,
-            "Scene: EndMatch",
+            `Scene: EndMatch`,
             {
                 fontFamily: 'arial',
                 fontSize: '20px',
                 color: '#ffffff'
             }
         ).setOrigin(0,0);
+
+        this.victoryText = this.add.text(
+            this.scale.width*0.5,
+            this.scale.height*0.25,
+            `${data.victory ? "You won!!" : "You lost..."}`,
+            {
+                fontFamily: 'arial',
+                fontSize: '20px',
+                color: '#ffffff'
+            }
+        ).setOrigin(0.5,0.5);
 
         // create ECS world
         this.world = createWorld();

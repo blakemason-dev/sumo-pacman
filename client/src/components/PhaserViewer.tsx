@@ -10,8 +10,10 @@ const PhaserViewer = () => {
 
     const config = {
         type: Phaser.CANVAS,
-        width: 640,
-        height: 360,
+        width: window.innerWidth*0.9,
+        height: window.innerWidth*0.9 * 1080 / 1960,
+        // width: 640,
+        // height: 360,
         parent: "phaser-viewer",
         scene: [ BootStrap ]
     }

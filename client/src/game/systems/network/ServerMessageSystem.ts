@@ -11,7 +11,7 @@ import { Transform } from '../../components/Transform';
 import Server from '../../services/Server';
 import { ServerPacmanController } from '../../components/network/ServerPacmanController';
 
-export const createServerMessageSystem = async (scene: Phaser.Scene, server: Server) => {
+export const createServerMessageSystem = (scene: Phaser.Scene, server: Server) => {
 
     const receiverQuery = defineQuery([ServerPacmanController]);
     const receiverQueryEnter = enterQuery(receiverQuery);
@@ -50,12 +50,7 @@ export const createServerMessageSystem = async (scene: Phaser.Scene, server: Ser
                 });
             }
         });
-
-        const receivers = receiverQuery(world);
-        receivers.map(eid => {
-
-        });
-
+        
         return world;
     })
 }

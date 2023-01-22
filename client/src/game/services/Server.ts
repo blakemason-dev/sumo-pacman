@@ -8,6 +8,7 @@ export default class Server {
     private client: Client;
     eventEmitter = new EventEmitter();
     room?: Room<iSumoPacmanState & Schema>;
+    pacmanIndex = -1;
 
     constructor() {
         this.client = new Client('ws://localhost:8500');
@@ -26,6 +27,15 @@ export default class Server {
 
         this.room.onMessage('client-left', (sessionId) => {
             this.eventEmitter.emit('opponent-disconnected');
+        });
+
+        this.room.onMessage('game-over', (data) => {
+            console.log("Server.ts received game-over message");
+            this.eventEmitter.emit('game-over', data);
+        });
+
+        this.room.onMessage('pacman-index', (index) => {
+            this.pacmanIndex = index;
         });
     }
 

@@ -11,6 +11,7 @@ import { Transform } from '../../components/Transform';
 import { ServerPacmanController } from '../../components/network/ServerPacmanController';
 import { ServerCoordinateConverter } from '../../components/network/ServerCoordinateConverter';
 import { ServerGameConfig } from '../../../../../server/types/game-config';
+import { NameTag } from '../../components/NameTag';
 
 export const createPfServerPacman = (world: IWorld, serverIndex: number, serverGameConfig: ServerGameConfig) => {
     const peid = addEntity(world);

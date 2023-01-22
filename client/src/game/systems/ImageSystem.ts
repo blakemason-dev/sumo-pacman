@@ -18,16 +18,18 @@ import * as ConvertServer from '../utilities/ConvertServer';
 
 export const createImageSystem = (scene: Phaser.Scene) => {
     const imagesById = new Map<number, Phaser.GameObjects.Image>();
+    
     const imageQuery = defineQuery([Transform, Image]);
     const imageQueryEnter = enterQuery(imageQuery);
     const imageQueryExit = exitQuery(imageQuery);
 
     const imageMovedQuery = defineQuery([Changed(Transform), Image, Not(ServerCoordinateConverter)]);
 
-    const imageConversionQuery = defineQuery([Changed(Transform), Image, ServerCoordinateConverter]);
-    const imageConversionQueryEnter = enterQuery(defineQuery([Transform, Image, ServerCoordinateConverter]));
+    const imageConversionQuery = defineQuery([Transform, Image, ServerCoordinateConverter]);
+    const imageConversionQueryEnter = enterQuery(imageConversionQuery);
 
     return defineSystem((world: IWorld) => {
+        // ENTER: Image, Transform
         const enterImages = imageQueryEnter(world);
         enterImages.map(eid => {
             imagesById.set(eid, scene.add.sprite(
@@ -45,13 +47,14 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             )
         });
 
+        // EXIT: Image, Transform
         const exitImages = imageQueryExit(world);
         exitImages.map(eid => {
             imagesById.get(eid)?.destroy();
             imagesById.delete(eid);
         });
 
-        // move images that don't have server conversions
+        // UPDATE: Changed(Transform), Image, Not(ServerCoordinateConverter)
         const imagesMoved = imageMovedQuery(world);
         imagesMoved.map(eid => {
             imagesById.get(eid)?.setPosition(
@@ -61,7 +64,7 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             imagesById.get(eid)?.setRotation(Transform.rotation[eid]);
         });
 
-        // initialise any images that have converters
+        // ENTER: Transform, Image, ServerCoordinateConverter
         const enterImageConversions = imageConversionQueryEnter(world);
         enterImageConversions.map(eid => {
             // create a converter config
@@ -82,7 +85,7 @@ export const createImageSystem = (scene: Phaser.Scene) => {
             imagesById.get(eid)?.setAngle(ConvertServer.radToPhaserAngle(Transform.rotation[eid]));
         });
 
-        // move images that do have server coordinate conversions
+        // UPDATE: Transform, Image, ServerCoordinateConverter
         const imageConversions = imageConversionQuery(world);
         imageConversions.map(eid => {
             // create a converter config

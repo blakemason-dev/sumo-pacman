@@ -7,9 +7,10 @@ import { ClientMovement } from '../components/ClientMovement';
 import { P2Body } from '../components/P2Body';
 import { P2ShapeCircle } from '../components/P2ShapeCircle';
 import { PacmanUpdater } from '../components/PacmanUpdater';
+import { RingOutChecker } from '../components/RingOutChecker';
 
 
-export const createPfPacmanEntity = (world: IWorld) => {
+export const createPfPacmanEntity = (world: IWorld, ringStartRadius: number) => {
     const eid = addEntity(world);
 
     addComponent(world, P2Body, eid);
@@ -24,6 +25,8 @@ export const createPfPacmanEntity = (world: IWorld) => {
 
     addComponent(world, ClientMovement, eid);
 
+    addComponent(world, RingOutChecker, eid);
+    RingOutChecker.radius[eid] = ringStartRadius;
 
     return eid;
 }
